@@ -1,5 +1,6 @@
 package com.seven.RailroadApp.models.entities;
 
+import com.seven.RailroadApp.models.enums.BookingStatus;
 import com.seven.RailroadApp.models.enums.SeatType;
 import com.seven.RailroadApp.models.enums.TravelTime;
 import lombok.Data;
@@ -31,6 +32,10 @@ public class Booking {
     })
     private Location arrivalLocation;
 
+    @ManyToOne
+    @JoinColumn(name="passengerId",referencedColumnName="id")
+    private User passenger;
+
     @Column(nullable = false)
     private LocalDateTime bookingDate;
 
@@ -44,4 +49,11 @@ public class Booking {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private SeatType seatType;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private BookingStatus status;
+
+
+
 }

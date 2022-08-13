@@ -10,6 +10,6 @@ import java.util.Optional;
 
 @Repository
 public interface LocationRepository extends JpaRepository<Location, LocationId>{
-    Optional<Location> findByStateCodeAndStationNo(StateCode stateCode, Long stationNo);
-    Boolean deleteByStateCodeAndStationNo(StateCode stateCode, Long stationNo);
+    Optional<Location> findByStateCodeAndStationNo(StateCode stateCode, String stationNo);
+    Boolean deleteByStateCodeAndStationNo(StateCode stateCode, String stationNo);
 }

@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @Entity(name="r_user")
 @Table(name="r_user")
 @Data
-@Builder
 public class User {
     @Id
     @SequenceGenerator(name = "r_user_sequence",initialValue = 1,allocationSize = 1)
@@ -27,7 +26,7 @@ public class User {
     @Column(nullable = false,length=15)
     private String phoneNo;
 
-    @Column(nullable = false)
+    @Column(nullable = false,unique = true)
     private String email;
 
     @Column(nullable = false)
@@ -42,4 +41,7 @@ public class User {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    public User() {
+    }
 }

@@ -1,9 +1,11 @@
 package com.seven.RailroadApp.models.entities;
 
 import com.seven.RailroadApp.models.enums.StateCode;
+import lombok.Data;
 
 import java.io.Serializable;
 //Composite primary Key class
+@Data
 public class LocationId implements Serializable {
 
     private StateCode stateCode;

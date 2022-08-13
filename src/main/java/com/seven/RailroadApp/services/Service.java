@@ -1,13 +1,11 @@
 package com.seven.RailroadApp.services;
 
-import com.seven.RailroadApp.models.records.Recordable;
-
 import java.util.Set;
 
-public interface Service {
-    Set<Object> getAll();
-    Recordable get(Object id);
-    Boolean create(Recordable recordObject);
-    Recordable delete(Object id);
-    Recordable update(Recordable recordObject);
+public abstract class Service {
+    abstract Set<? extends Record> getAll();
+    abstract Record get(Object id);
+    Record create(Record recordObject){return null;}
+    Boolean delete(Object id){return false;}
+    abstract Record update(Record recordObject);
 }

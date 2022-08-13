@@ -9,6 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket,Long> {
-    Iterable<Ticket> findAllByUserId(Long id);
-    Optional<Ticket> findByBookingNo(UUID bookingNo);
+    Optional<Ticket> findByBooking(UUID bookingNo);
+    Boolean deleteByBooking(UUID bookingNo);
 }
