@@ -36,7 +36,7 @@ public class User {
     private LocalDate dateBirth;
 
     @Column(nullable = false)
-    private LocalDateTime dateReg = LocalDateTime.now();
+    private LocalDateTime dateReg;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

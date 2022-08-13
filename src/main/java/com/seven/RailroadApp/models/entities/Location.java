@@ -1,6 +1,6 @@
 package com.seven.RailroadApp.models.entities;
 
-import com.seven.RailroadApp.models.enums.StateCode;
+import com.seven.RailroadApp.models.enums.StateName;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -11,8 +11,7 @@ import javax.persistence.*;
 @IdClass(LocationId.class)
 public class Location {
     @Id
-    @Enumerated(EnumType.STRING)
-    private StateCode stateCode;
+    private String stateCode;
 
     @Id
     private String stationNo;
@@ -21,5 +20,6 @@ public class Location {
     private String stationName;
 
     @Column(nullable = false)
-    private String stationLocation;
+    @Enumerated(EnumType.STRING)
+    private StateName stateName;
 }

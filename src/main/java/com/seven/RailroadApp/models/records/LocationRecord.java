@@ -1,22 +1,20 @@
 package com.seven.RailroadApp.models.records;
 
 import com.seven.RailroadApp.models.entities.Location;
-import com.seven.RailroadApp.models.entities.Ticket;
-import com.seven.RailroadApp.models.enums.StateCode;
-import org.springframework.beans.BeanUtils;
+import com.seven.RailroadApp.models.enums.StateName;
 
 public record LocationRecord(
-        StateCode stateCode,
+        String stateCode,
         String stationNo,
         String stationName,
-        String stationLocation
+        StateName stateName
 ) {
     public static LocationRecord copy(Location l){
        return new LocationRecord(
                l.getStateCode(),
                l.getStationNo(),
                l.getStationName(),
-               l.getStationLocation()
+               l.getStateName()
        );
     }
 }

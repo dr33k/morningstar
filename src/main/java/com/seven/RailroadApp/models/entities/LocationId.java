@@ -1,6 +1,5 @@
 package com.seven.RailroadApp.models.entities;
 
-import com.seven.RailroadApp.models.enums.StateCode;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -8,10 +7,10 @@ import java.io.Serializable;
 @Data
 public class LocationId implements Serializable {
 
-    private StateCode stateCode;
+    private String stateCode;
     private String stationNo;
 
-    public LocationId(StateCode stateCode, String stationNo) {
+    public LocationId(String stateCode, String stationNo) {
         this.stateCode = stateCode;
         this.stationNo = stationNo;
     }

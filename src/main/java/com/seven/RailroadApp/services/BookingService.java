@@ -3,14 +3,15 @@ package com.seven.RailroadApp.services;
 import com.seven.RailroadApp.models.entities.Booking;
 import com.seven.RailroadApp.models.entities.User;
 import com.seven.RailroadApp.models.enums.BookingStatus;
-import com.seven.RailroadApp.models.enums.TicketStatus;
 import com.seven.RailroadApp.models.records.BookingRecord;
 import com.seven.RailroadApp.models.records.TicketRecord;
 import com.seven.RailroadApp.repositories.BookingRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -57,6 +58,27 @@ public class BookingService extends com.seven.RailroadApp.services.Service {
     }
 
     @Override
+    Record create(Record recordObject) {
+        try {
+            BookingRecord bookingRecord = (BookingRecord) recordObject;
+            Booking booking = new Booking();
+            BeanUtils.copyProperties(bookingRecord, booking);
+
+            //Set booking date
+            booking.setBookingDate(LocalDateTime.now());
+            //Set booking status
+            booking.setStatus(BookingStatus.VALID);
+            //Set passenger
+            booking.setPassenger(new User());
+
+            //Save
+            bookingRepository.save(booking);
+
+            return BookingRecord.copy(booking);
+        }catch (Exception ex){return null;}
+    }
+
+    @Override
     Boolean delete(Object id) {
         try {
             Optional<Booking> bookingReturned = bookingRepository.findById((UUID) id);
@@ -74,28 +96,51 @@ public class BookingService extends com.seven.RailroadApp.services.Service {
 
     @Override
     Record update(Record recordObject) {
+        Boolean modified = false;
         try {//Retrieve indicated Booking Object from the Database
             BookingRecord propertiesToUpdate = (BookingRecord) recordObject;
             Optional<Booking> bookingReturned = bookingRepository.findByBookingNo(propertiesToUpdate.bookingNo());
+
+            BookingRecord propertiesToReturn = null;
 
             if (bookingReturned.isPresent()) {
                 Booking booking = bookingReturned.get();
                 String status = booking.getStatus().name();
 
-                if(status.equals("CANCELLED") && !propertiesToUpdate.status().name().equals(status))
-                    return handleCancelled(booking);
-
+                if(status.equals("CANCELLED") && !propertiesToUpdate.status().name().equals(status)) {
+                    propertiesToReturn = (BookingRecord) handleCancelled(booking);
+                    modified =(propertiesToReturn != null);
+                }
+                else if(status.equals("USED") && !propertiesToUpdate.status().name().equals(status)) {
+                    propertiesToReturn = (BookingRecord) handleUsed(booking);
+                    modified =(propertiesToReturn != null);
+                }
+                if(modified){
+                    bookingRepository.save(booking);
+                    return propertiesToReturn;
+                }
             }
+
+
+
         } catch (Exception ex) {return null;}
         return null;
     }
 
     private Record handleCancelled(Booking booking){
-        TicketRecord tr = new TicketRecord(booking.getBookingNo(),null, TicketStatus.CANCELLED);//Cancel/delete ticket
+        TicketRecord tr = new TicketRecord(booking.getBookingNo(),null, BookingStatus.CANCELLED);//Cancel/delete ticket
         Record r = ticketService.update(tr);
         if(r!=null) {
             booking.setStatus(BookingStatus.CANCELLED);
-            bookingRepository.save(booking);
+            return BookingRecord.copy(booking);
+        }
+        else return null;
+    }
+    private Record handleUsed(Booking booking){
+        TicketRecord tr = new TicketRecord(booking.getBookingNo(),null, BookingStatus.USED);//Cancel/delete ticket
+        Record r = ticketService.update(tr);
+        if(r!=null) {
+            booking.setStatus(BookingStatus.USED);
             return BookingRecord.copy(booking);
         }
         else return null;

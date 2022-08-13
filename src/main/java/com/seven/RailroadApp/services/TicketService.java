@@ -1,7 +1,7 @@
 package com.seven.RailroadApp.services;
 
 import com.seven.RailroadApp.models.entities.Ticket;
-import com.seven.RailroadApp.models.enums.TicketStatus;
+import com.seven.RailroadApp.models.enums.BookingStatus;
 import com.seven.RailroadApp.models.records.TicketRecord;
 import com.seven.RailroadApp.repositories.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +51,7 @@ public class TicketService extends com.seven.RailroadApp.services.Service {
                 switch(status){
                     case "CANCELLED": {ticketRepository.deleteById(ticket.getId());
                                         return TicketRecord.copy(ticket);}
-                    case "USED": {ticket.setStatus(TicketStatus.USED);
+                    case "USED": {ticket.setStatus(BookingStatus.USED);
                                     ticketRepository.save(ticket);
                                     return TicketRecord.copy(ticket);}
                     default:break;

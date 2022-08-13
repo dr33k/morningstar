@@ -1,7 +1,6 @@
 package com.seven.RailroadApp.models.entities;
 
-import com.seven.RailroadApp.models.enums.TicketStatus;
-import lombok.Builder;
+import com.seven.RailroadApp.models.enums.BookingStatus;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -25,5 +24,5 @@ public class Ticket {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private TicketStatus status;
+    private BookingStatus status;
 }

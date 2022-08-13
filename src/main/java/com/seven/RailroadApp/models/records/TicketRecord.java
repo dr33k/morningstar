@@ -1,8 +1,7 @@
 package com.seven.RailroadApp.models.records;
 
 import com.seven.RailroadApp.models.entities.Ticket;
-import com.seven.RailroadApp.models.enums.TicketStatus;
-import org.springframework.beans.BeanUtils;
+import com.seven.RailroadApp.models.enums.BookingStatus;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -10,7 +9,7 @@ import java.util.UUID;
 public record TicketRecord(
         UUID bookingNo,
         LocalDate expiryDate,
-        TicketStatus status
+        BookingStatus status
 ) {
     public static TicketRecord copy(Ticket t){
         return new TicketRecord(
