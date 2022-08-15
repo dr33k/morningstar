@@ -16,14 +16,14 @@ import java.util.*;
 
 @Service
 @Transactional
-public class BookingService extends com.seven.RailroadApp.services.Service {
+public class BookingService implements com.seven.RailroadApp.services.Service {
     @Autowired
     private BookingRepository bookingRepository;
     @Autowired
     private TicketService ticketService;
 
     @Override
-    Set<BookingRecord> getAll() {
+    public Set<BookingRecord> getAll() {
         Set<BookingRecord> bookingRecords = new HashSet<>(0);
         List<Booking> bookingList = bookingRepository.findAll();
         for (Booking booking : bookingList) {
@@ -33,7 +33,7 @@ public class BookingService extends com.seven.RailroadApp.services.Service {
         return bookingRecords;
     }
 
-    Set<BookingRecord> getAllByPassenger(User passenger){
+    public Set<BookingRecord> getAllByPassenger(User passenger){
         Set<BookingRecord> bookingRecords = new HashSet<>(0);
         Iterable<Booking> bookingList = bookingRepository.findAllByPassenger(passenger.getId());
         for (Booking booking : bookingList) {
@@ -44,7 +44,7 @@ public class BookingService extends com.seven.RailroadApp.services.Service {
     }
 
     @Override
-    Record get(Object id) {
+    public Record get(Object id) {
         try {
             Optional<Booking> bookingReturned = bookingRepository.findById((UUID) id);
             /*If a value is present, map returns an Optional describing the result of applying
@@ -58,7 +58,7 @@ public class BookingService extends com.seven.RailroadApp.services.Service {
     }
 
     @Override
-    Record create(Record recordObject) {
+    public Record create(Record recordObject) {
         try {
             BookingRecord bookingRecord = (BookingRecord) recordObject;
             Booking booking = new Booking();
@@ -79,7 +79,7 @@ public class BookingService extends com.seven.RailroadApp.services.Service {
     }
 
     @Override
-    Boolean delete(Object id) {
+    public Boolean delete(Object id) {
         try {
             Optional<Booking> bookingReturned = bookingRepository.findById((UUID) id);
             if (bookingReturned.isPresent()) {
@@ -95,7 +95,7 @@ public class BookingService extends com.seven.RailroadApp.services.Service {
     }
 
     @Override
-    Record update(Record recordObject) {
+    public Record update(Record recordObject) {
         Boolean modified = false;
         try {//Retrieve indicated Booking Object from the Database
             BookingRecord propertiesToUpdate = (BookingRecord) recordObject;

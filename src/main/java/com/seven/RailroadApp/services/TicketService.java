@@ -12,7 +12,7 @@ import java.util.*;
 
 @Service
 @Transactional
-public class TicketService extends com.seven.RailroadApp.services.Service {
+public class TicketService implements com.seven.RailroadApp.services.Service {
     @Autowired
     private TicketRepository ticketRepository;
 
@@ -58,6 +58,16 @@ public class TicketService extends com.seven.RailroadApp.services.Service {
                 }
             }
         }catch (Exception ex){return null;}
+        return null;
+    }
+
+    @Override
+    public Record create(Record recordObject) {
+        return null;
+    }
+
+    @Override
+    public Boolean delete(Object id) {
         return null;
     }
 }

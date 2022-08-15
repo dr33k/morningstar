@@ -8,13 +8,10 @@ import javax.persistence.*;
 @Entity(name="location")
 @Table(name="location")
 @Data
-@IdClass(LocationId.class)
 public class Location {
-    @Id
-    private String stateCode;
+    @EmbeddedId
 
-    @Id
-    private String stationNo;
+    private LocationId locationId;
 
     @Column(nullable = false)
     private String stationName;

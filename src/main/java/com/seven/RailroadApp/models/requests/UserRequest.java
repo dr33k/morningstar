@@ -15,20 +15,19 @@ import java.time.LocalDate;
 @Data
 public class UserRequest {
     @NotBlank(message = "Required field")
-    @Pattern(regexp = "^\\s{2,30}",message = "Name must be at least 2 characters long")
+    @Pattern(regexp = "^[A-Za-z'\\-]{2,30}",message = "Name must be at least 2 characters long")
     private String firstName;
     @NotBlank(message = "Required field")
-    @Pattern(regexp = "^\\s{2,30}",message = "Name must be at least 2 characters long")
+    @Pattern(regexp = "^[A-Za-z'\\-]{2,30}",message = "Name must be at least 2 characters long")
     private String lastName;
     @NotBlank(message = "Required field")
     @Pattern(regexp = "^[+-][0-9]{11,15}$",message = "Name must be at least 2 characters long")
     private String phoneNo;
     @NotBlank(message = "Required field")
-    @Email(message = "Invalid email format")
+    @Email(regexp = "^[A-Za-z0-9]{3,}@[A-Za-z]{2,}\\.[A-Za-z]{2,}$",message = "Invalid email format")
     private String email;
     @NotBlank(message = "Required field")
     private String password;
     @Past(message = "Future and current dates not allowed")
-    @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$")
     private LocalDate dateBirth;
 }

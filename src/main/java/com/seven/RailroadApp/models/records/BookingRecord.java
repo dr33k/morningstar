@@ -7,6 +7,7 @@ import com.seven.RailroadApp.models.entities.User;
 import com.seven.RailroadApp.models.enums.BookingStatus;
 import com.seven.RailroadApp.models.enums.SeatType;
 import com.seven.RailroadApp.models.enums.TravelTime;
+import com.seven.RailroadApp.models.requests.BookingRequest;
 import org.springframework.beans.BeanUtils;
 
 import java.time.LocalDate;
@@ -35,6 +36,19 @@ public record BookingRecord(
                 b.getTravelTime(),
                 b.getSeatType(),
                 b.getStatus()
+        );
+    }
+    public static BookingRecord copy(BookingRequest b){
+        return new BookingRecord(
+                null,
+                b.getDepartureLocation(),
+                b.getArrivalLocation(),
+                null,
+                null,
+                b.getTravelDate(),
+                b.getTravelTime(),
+                b.getSeatType(),
+                null
         );
     }
 }
