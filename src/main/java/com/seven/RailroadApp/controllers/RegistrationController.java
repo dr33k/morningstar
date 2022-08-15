@@ -1,9 +1,7 @@
 package com.seven.RailroadApp.controllers;
 
-import com.seven.RailroadApp.models.entities.LocationId;
 import com.seven.RailroadApp.models.records.UserRecord;
-import com.seven.RailroadApp.models.requests.LocationRequest;
-import com.seven.RailroadApp.models.requests.UserRequest;
+import com.seven.RailroadApp.models.requests.UserCreateRequest;
 import com.seven.RailroadApp.models.responses.Response;
 import com.seven.RailroadApp.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.net.URI;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -27,7 +24,7 @@ public class RegistrationController{
     UserService userService;
 
     @PostMapping
-    ResponseEntity<Response> createResource(@Valid @RequestBody UserRequest request){
+    ResponseEntity<Response> createResource(@Valid @RequestBody UserCreateRequest request){
         UserRecord userRecord = UserRecord.copy(request);
         userRecord = (UserRecord) userService.create(userRecord);
         return (!(userRecord.message() == null))?

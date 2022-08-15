@@ -5,7 +5,6 @@ import lombok.Data;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
@@ -13,21 +12,15 @@ import java.time.LocalDate;
 @Validated
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class UserRequest {
-    @NotBlank(message = "Required field")
+public class UserUpdateRequest {
     @Pattern(regexp = "^[A-Za-z'\\-]{2,30}",message = "Name must be at least 2 characters long")
-    private String firstName;
-    @NotBlank(message = "Required field")
+    String firstName;
     @Pattern(regexp = "^[A-Za-z'\\-]{2,30}",message = "Name must be at least 2 characters long")
-    private String lastName;
-    @NotBlank(message = "Required field")
+    String lastName = null;
     @Pattern(regexp = "^[+-][0-9]{11,15}$",message = "Name must be at least 2 characters long")
-    private String phoneNo;
-    @NotBlank(message = "Required field")
-    @Email(regexp = "^[A-Za-z0-9]{3,}@[A-Za-z]{2,}\\.[A-Za-z]{2,}$",message = "Invalid email format")
-    private String email;
-    @NotBlank(message = "Required field")
-    private String password;
+    String phoneNo = null;
+    @Pattern(regexp = "^[A-Za-z\\d'.!@#$%^&*_\\-]{8,}",message = "Password must be at least 8 characters long")
+    String password = null;
     @Past(message = "Future and current dates not allowed")
-    private LocalDate dateBirth;
+    LocalDate dateBirth = null;
 }

@@ -2,7 +2,7 @@ package com.seven.RailroadApp.services;
 
 import java.util.Set;
 
-public interface Service {
+public interface Service{
     Set<? extends Record> getAll();
     Record get(Object id);
     Record create(Record recordObject);

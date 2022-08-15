@@ -1,10 +1,7 @@
 package com.seven.RailroadApp.services;
 
-import com.seven.RailroadApp.models.entities.Location;
-import com.seven.RailroadApp.models.entities.LocationId;
 import com.seven.RailroadApp.models.entities.User;
 import com.seven.RailroadApp.models.enums.UserRole;
-import com.seven.RailroadApp.models.records.LocationRecord;
 import com.seven.RailroadApp.models.records.UserRecord;
 import com.seven.RailroadApp.repositories.UserRepository;
 import org.springframework.beans.BeanUtils;
@@ -35,6 +32,7 @@ public class UserService implements com.seven.RailroadApp.services.Service {
         }
         return userRecords;
     }
+
     @Override
     public Record get(Object id) {
         try {
@@ -46,8 +44,8 @@ public class UserService implements com.seven.RailroadApp.services.Service {
              */
             return userReturned.map(UserRecord::copy).orElse(null);
         } catch (Exception ex) {
-            return new UserRecord(null,null, null, null, null, null, null, null,
-                    "User not found, please make sure search credentials are entered properly. Possibly: "+ex.getMessage()
+            return new UserRecord(null, null, null, null, null, null, null, null,
+                    "User not found, please make sure search credentials are entered properly. Possibly: " + ex.getMessage()
             );
         }
     }
@@ -59,7 +57,7 @@ public class UserService implements com.seven.RailroadApp.services.Service {
 
             Optional<User> userReturned = userRepository.findByEmail(userRecord.email());
 
-            if(userReturned.isEmpty()) {
+            if (userReturned.isEmpty()) {
                 User user = new User();
                 BeanUtils.copyProperties(userRecord, user);
 
@@ -72,10 +70,11 @@ public class UserService implements com.seven.RailroadApp.services.Service {
                 userRepository.save(user);
                 return UserRecord.copy(user);
             }
-            return new UserRecord(null,null, null, null, null, null, null, null,
+            return new UserRecord(null, null, null, null, null, null, null, null,
                     "User with this email already exists");
-        }catch (Exception ex){ return new UserRecord(null,null, null, null, null, null, null, null,
-                "User could be created, please try again later. Why? "+ex.getMessage());
+        } catch (Exception ex) {
+            return new UserRecord(null, null, null, null, null, null, null, null,
+                    "User could be created, please try again later. Why? " + ex.getMessage());
         }
     }
 
@@ -84,8 +83,10 @@ public class UserService implements com.seven.RailroadApp.services.Service {
         try {
             String email = (String) id;
             Optional<User> uOpt = userRepository.findByEmail(email);
-            if(uOpt.isPresent()){userRepository.deleteByEmail(email);
-                return true;}
+            if (uOpt.isPresent()) {
+                userRepository.deleteByEmail(email);
+                return true;
+            }
         } catch (Exception ex) {
             return false;
         }
@@ -94,10 +95,47 @@ public class UserService implements com.seven.RailroadApp.services.Service {
 
     @Override
     public Record update(Record recordObject) {
-        return null;
-    }
+        UserRecord ur = (UserRecord) recordObject;
+        try {//Retrieve indicated User Object from the Database
+            Optional<User> userReturned = userRepository.findByEmail(ur.email());
 
-    public Record update(String email, String property, String newValue) {
+            if (userReturned.isPresent()) {
+                User user = userReturned.get();
+                Boolean modified = false;
+
+                //If the property is not null and is a different value from before
+                if (ur.firstName() != null && !ur.firstName().equals(user.getFirstName())) {
+                    user.setFirstName(ur.firstName());
+                    modified = (modified) ? modified : true;
+                } else if (ur.lastName() != null && !ur.lastName().equals(user.getLastName())) {
+                    user.setLastName(ur.lastName());
+                    modified = (modified) ? modified : true;
+                } else if (ur.password() != null && !ur.password().equals(user.getPassword())) {
+                    user.setPassword(ur.password());
+                    modified = (modified) ? modified : true;
+                } else if (ur.phoneNo() != null && !ur.phoneNo().equals(user.getPhoneNo())) {
+                    user.setPhoneNo(ur.phoneNo());
+                    modified = (modified) ? modified : true;
+                } else if (ur.dateBirth()!= null && !ur.dateBirth().equals(user.getDateBirth())) {
+                    user.setDateBirth(ur.dateBirth());
+                    modified = (modified) ? modified : true;
+                }
+            if (modified) {
+                userRepository.save(user);
+                return UserRecord.copy(user);
+            }
+        }
+    } catch(   Exception ex)
+
+    {
+        return new UserRecord(null, null, null, null, null, null, null, null,
+                "User could not be modified, please try again. Why? " + ex.getMessage()
+        );
+    }
+        return null;
+}
+
+ /*   public Record update(String email, String property, String newValue) {
         try {//Retrieve indicated User Object from the Database
             Optional<User> userReturned = userRepository.findByEmail(email);
 
@@ -105,7 +143,7 @@ public class UserService implements com.seven.RailroadApp.services.Service {
                 User user = userReturned.get();
                 Boolean modified = false;
 
-                switch(property){
+                switch (property) {
                     case "FNAME": {
                         //If the property is not null and is a different value from before
                         if (newValue != null && !newValue.equals(user.getFirstName())) {
@@ -114,53 +152,56 @@ public class UserService implements com.seven.RailroadApp.services.Service {
                             break;
                         }
                     }
-                    case "LNAME":{
-                            if(newValue !=null && !newValue.equals(user.getLastName())) {
-                                user.setLastName(newValue);
-                                modified =  (modified)?modified:true;
-                                break;
-                            }
+                    case "LNAME": {
+                        if (newValue != null && !newValue.equals(user.getLastName())) {
+                            user.setLastName(newValue);
+                            modified = (modified) ? modified : true;
+                            break;
+                        }
                     }
-                    case "EMAIL":{
-                        if(newValue !=null && !newValue.equals(user.getEmail())) {
+                    case "EMAIL": {
+                        if (newValue != null && !newValue.equals(user.getEmail())) {
                             user.setEmail(newValue);
-                            modified =  (modified)?modified:true;
+                            modified = (modified) ? modified : true;
                             break;
                         }
                     }
-                    case "PASS":{
-                        if(newValue !=null && !newValue.equals(user.getPassword())) {
+                    case "PASS": {
+                        if (newValue != null && !newValue.equals(user.getPassword())) {
                             user.setPassword(newValue);
-                            modified =  (modified)?modified:true;
+                            modified = (modified) ? modified : true;
                             break;
                         }
                     }
-                    case "PHONE":{
-                        if(newValue !=null && !newValue.equals(user.getPhoneNo())) {
+                    case "PHONE": {
+                        if (newValue != null && !newValue.equals(user.getPhoneNo())) {
                             user.setPhoneNo(newValue);
-                            modified =  (modified)?modified:true;
+                            modified = (modified) ? modified : true;
                             break;
                         }
                     }
-                    case "DOB":{
-                        if(newValue !=null && !newValue.equals(user.getDateBirth())) {
+                    case "DOB": {
+                        if (newValue != null && !newValue.equals(user.getDateBirth())) {
                             user.setDateBirth(LocalDate.parse(newValue));
-                            modified =  (modified)?modified:true;
+                            modified = (modified) ? modified : true;
                             break;
                         }
                     }
-                    default:    return new UserRecord(null, null, null,null,null, null, null, null,
-                            "Check the property and new_value credentials you want to update carefully");
+                    default:
+                        return new UserRecord(null, null, null, null, null, null, null, null,
+                                "Check the property and new_value credentials you want to update carefully");
                 }
-                if(modified) {
+                if (modified) {
                     userRepository.save(user);
                     return UserRecord.copy(user);
                 }
             }
-        } catch (Exception ex) {return new UserRecord(null, null, null,null,null, null, null, null,
-                "User could not be modified, please try again. Why? "+ex.getMessage()
-        );}
+        } catch (Exception ex) {
+            return new UserRecord(null, null, null, null, null, null, null, null,
+                    "User could not be modified, please try again. Why? " + ex.getMessage()
+            );
+        }
         return null;
     }
-
+  */
 }

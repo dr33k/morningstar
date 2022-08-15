@@ -1,8 +1,7 @@
 package com.seven.RailroadApp.controllers;
 
 import com.seven.RailroadApp.models.records.UserRecord;
-import com.seven.RailroadApp.models.records.UserRecord;
-import com.seven.RailroadApp.models.requests.UserRequest;
+import com.seven.RailroadApp.models.requests.UserUpdateRequest;
 import com.seven.RailroadApp.models.responses.Response;
 import com.seven.RailroadApp.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,14 +11,12 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 @RestController
 @RequestMapping("/user")
-public class UserController implements Controller<UserRequest,String>{
+public class UserController implements Controller<UserUpdateRequest,String>{
     @Autowired
     UserService userService;
     
@@ -64,18 +61,14 @@ public class UserController implements Controller<UserRequest,String>{
     }
 
     @Override
-    public ResponseEntity<Response> createResource(UserRequest request) {
-        return ResponseEntity.notFound().build();
-    }
-
-    @Override
-    public ResponseEntity<Response> updateResource(UserRequest request) {
+    public ResponseEntity<Response> createResource(UserUpdateRequest request) {
         return null;
     }
 
-    @PutMapping("/modify")
-    public ResponseEntity<Response> updateResource(@RequestParam(name="id") String id, @RequestParam(name="property") String property, @RequestParam(name="new_value") String newValue) {
-        UserRecord userRecord = (UserRecord) userService.update(id,property,newValue);
+    @Override
+    public ResponseEntity<Response> updateResource(@Valid @RequestBody UserUpdateRequest request) {
+        UserRecord userRecord = UserRecord.copy(request);
+        userRecord = (UserRecord) userService.update(userRecord);
         if(userRecord == null) {       //If resource was not found
             return ResponseEntity.of(Optional.of(Response.builder()
                     .isError(true)

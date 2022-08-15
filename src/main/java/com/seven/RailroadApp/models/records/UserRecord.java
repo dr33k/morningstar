@@ -1,7 +1,8 @@
 package com.seven.RailroadApp.models.records;
 import com.seven.RailroadApp.models.entities.User;
 import com.seven.RailroadApp.models.enums.UserRole;
-import com.seven.RailroadApp.models.requests.UserRequest;
+import com.seven.RailroadApp.models.requests.UserCreateRequest;
+import com.seven.RailroadApp.models.requests.UserUpdateRequest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,7 +31,20 @@ public record UserRecord(
                 null
         );
     }
-    public static UserRecord copy(UserRequest u){
+    public static UserRecord copy(UserUpdateRequest u){
+        return new UserRecord(
+                u.getFirstName(),
+                u.getLastName(),
+                u.getPhoneNo(),
+                null,
+                u.getPassword(),
+                u.getDateBirth(),
+                null,
+                null,
+                null
+        );
+    }
+    public static UserRecord copy(UserCreateRequest u){
         return new UserRecord(
                 u.getFirstName(),
                 u.getLastName(),
