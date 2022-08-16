@@ -88,7 +88,7 @@ public class LocationService implements com.seven.RailroadApp.services.Service {
 
     @Override
     public Record update(Record recordObject) {
-        Boolean modified = false;
+        boolean modified = false;
         try {//Retrieve indicated Location Object from the Database
             LocationRecord propertiesToUpdate = (LocationRecord) recordObject;
             Optional<Location> locationReturned = locationRepository.findById(propertiesToUpdate.locationId());

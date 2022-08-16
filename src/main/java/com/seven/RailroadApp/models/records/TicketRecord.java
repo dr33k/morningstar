@@ -1,5 +1,6 @@
 package com.seven.RailroadApp.models.records;
 
+import com.seven.RailroadApp.models.entities.Booking;
 import com.seven.RailroadApp.models.entities.Ticket;
 import com.seven.RailroadApp.models.enums.BookingStatus;
 

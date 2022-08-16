@@ -5,13 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity(name="r_user")
 @Table(name="r_user")
 @Data
-public class User {
+public class User implements Serializable {
     @Id
     @SequenceGenerator(name = "r_user_sequence",initialValue = 1,allocationSize = 1)
     @GeneratedValue(generator = "r_user_sequence",strategy = GenerationType.SEQUENCE)

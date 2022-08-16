@@ -102,7 +102,7 @@ public class VoyageController implements Controller<VoyageRequest, UUID> {
             return ResponseEntity.of(Optional.of(Response.builder()
                     .isError(true)
                     .message("A couple of things you might try checking:" +
-                            "\n*Only the Status of the reservation can be modified." +
+                            "\n*Only the Status of the voyage can be modified." +
                             "\n*Make sure the id was entered correctly")
                     .status(HttpStatus.NOT_MODIFIED)
                     .timestamp(LocalDateTime.now())

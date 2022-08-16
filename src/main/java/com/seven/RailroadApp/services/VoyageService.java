@@ -8,6 +8,7 @@ import com.seven.RailroadApp.models.records.VoyageRecord;
 import com.seven.RailroadApp.models.records.LocationRecord;
 import com.seven.RailroadApp.models.records.TicketRecord;
 import com.seven.RailroadApp.models.records.UserRecord;
+import com.seven.RailroadApp.repositories.LocationRepository;
 import com.seven.RailroadApp.repositories.VoyageRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,17 +19,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import static com.seven.RailroadApp.models.enums.VoyageStatus.*;
 
 @Service
 @Transactional
 public class VoyageService implements com.seven.RailroadApp.services.Service {
     @Autowired
     private VoyageRepository voyageRepository;
-    @Autowired
-    private TicketService ticketService;
 
     @Autowired
-    private LocationService locationService;
+    private LocationRepository locationReposistory;
 
     @Override
     public Set<VoyageRecord> getAll() {
@@ -64,19 +64,15 @@ public class VoyageService implements com.seven.RailroadApp.services.Service {
             BeanUtils.copyProperties(voyageRecord, voyage);
 
             //Set Arrival Location
-            LocationRecord lr = (LocationRecord) locationService.get(voyageRecord.arrivalLocationId());
+            Optional<Location> l1Opt = locationReposistory.findById(voyageRecord.arrivalLocationId());
 
-            if (lr != null && lr.message() == null) {
-                Location l1 = new Location();
-                BeanUtils.copyProperties(lr, l1);
-                voyage.setArrivalLocation(l1);
+            if (l1Opt.isPresent()) {
+                voyage.setArrivalLocation(l1Opt.get());
 
                 //Set Departure Location
-                lr = (LocationRecord) locationService.get(voyageRecord.departureLocationId());
-                if (lr != null && lr.message() == null) {
-                    Location l2 = new Location();
-                    BeanUtils.copyProperties(lr, l2);
-                    voyage.setDepartureLocation(l2);
+                Optional<Location> l2Opt = locationReposistory.findById(voyageRecord.departureLocationId());
+                if (l2Opt.isPresent()) {
+                    voyage.setDepartureLocation(l2Opt.get());
 
                     //Set voyage status
                     voyage.setStatus(VoyageStatus.PENDING);
@@ -91,7 +87,7 @@ public class VoyageService implements com.seven.RailroadApp.services.Service {
             }
         } catch (Exception ex) {
             return new UserRecord(null, null, null, null, null, null, null, null,
-                    "Reservation could be created, please try again later. Why? " + ex.getMessage());
+                    "Voyage Record could be created, please try again later. Why? " + ex.getMessage());
         }
         return null;
     }
@@ -110,29 +106,29 @@ public class VoyageService implements com.seven.RailroadApp.services.Service {
 
             if (voyageReturned.isPresent()) {
                 Voyage voyage = voyageReturned.get();
-                String status = voyage.getStatus().name();
+                VoyageStatus status = voyage.getStatus();
                 LocalTime travelTime = voyage.getTravelTime();
                 LocalDate travelDate = voyage.getTravelDate();
 
-                if (propertiesToUpdate.travelDate().isAfter(travelDate) && !status.equals("COMPLETED") && !status.equals("IN_TRANSIT")) {
+                if (propertiesToUpdate.travelDate() != null && propertiesToUpdate.travelDate().isAfter(travelDate) && status.equals(PENDING)) {
                     voyage.setTravelDate(propertiesToUpdate.travelDate());
                     modified = true;
                 }
-                else if (propertiesToUpdate.travelTime().isAfter(travelTime) && !status.equals("COMPLETED") && !status.equals("IN_TRANSIT")) {
+                else if (propertiesToUpdate.travelTime() != null && propertiesToUpdate.travelTime().isAfter(travelTime) && status.equals(PENDING)) {
                     voyage.setTravelTime(propertiesToUpdate.travelTime());
                     modified = true;
                 }
-                else if (propertiesToUpdate.status().equals("IN_TRANSIT") && !propertiesToUpdate.status().name().equals(status) && status.equals("PENDING")) {
-                    voyage.setStatus(VoyageStatus.IN_TRANSIT);
+                else if (propertiesToUpdate.status()!= null && propertiesToUpdate.status().equals(IN_TRANSIT) && !propertiesToUpdate.status().equals(status) && status.equals(PENDING)) {
+                    voyage.setStatus(IN_TRANSIT);
                     modified = true;
-                } else if (propertiesToUpdate.status().equals("COMPLETED") && !propertiesToUpdate.status().name().equals(status)&& status.equals("IN_TRANSIT")) {
+                } else if (propertiesToUpdate.status()!= null && propertiesToUpdate.status().equals(COMPLETED) && !propertiesToUpdate.status().equals(status)&& status.equals(IN_TRANSIT)) {
                     voyage.setStatus(VoyageStatus.COMPLETED);
                     voyage.setArrivalDateTime(LocalDateTime.now());
                     modified = true;
-                } else if (propertiesToUpdate.status().equals("CANCELLED") && !propertiesToUpdate.status().name().equals(status) && !status.equals("COMPLETED")) {
+                } else if (propertiesToUpdate.status()!= null && propertiesToUpdate.status().equals(CANCELLED) && !propertiesToUpdate.status().equals(status) && !status.equals(COMPLETED)) {
                     voyage.setStatus(VoyageStatus.CANCELLED);
                     modified = true;
-                } else if (propertiesToUpdate.status().equals("PENDING") && !propertiesToUpdate.status().name().equals(status) && status.equals("IN_TRANSIT")) {
+                } else if (propertiesToUpdate.status()!= null && propertiesToUpdate.status().equals(PENDING) && !propertiesToUpdate.status().equals(status) && status.equals(IN_TRANSIT)) {
                     voyage.setStatus(VoyageStatus.PENDING);
                     modified = true;
                 }
@@ -140,7 +136,7 @@ public class VoyageService implements com.seven.RailroadApp.services.Service {
                     voyageRepository.save(voyage);
                     return VoyageRecord.copy(voyage);
                 }
-                else{return new UserRecord(null, null, null, null, null, null, null, null,
+                else{return new VoyageRecord(null, null, null, null, null, null, null,
                         "Voyage Record could be updated, Why? " +
                                 "* Please postpone travel date and time (if required) to values in the future" +
                                 "* IN_TRANSIT updates can only be processed when the voyage is PENDING" +
@@ -151,7 +147,7 @@ public class VoyageService implements com.seven.RailroadApp.services.Service {
                 }
             }
         } catch (Exception ex) {
-            return new UserRecord(null, null, null, null, null, null, null, null,
+            return new VoyageRecord(null, null, null, null, null, null, null,
                     "Voyage Record could be updated, please try again later. Why? " + ex.getMessage());
         }
         return null;

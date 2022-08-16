@@ -9,14 +9,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import static com.seven.RailroadApp.models.enums.BookingStatus.*;
 
 @Service
 @Transactional
-public class TicketService implements com.seven.RailroadApp.services.Service {
+public class TicketService {
     @Autowired
     private TicketRepository ticketRepository;
-
-    @Override
     public Set<TicketRecord> getAll() {
         Set<TicketRecord> ticketRecords = new HashSet<>(0);
         List<Ticket> ticketList = ticketRepository.findAll();
@@ -26,48 +25,47 @@ public class TicketService implements com.seven.RailroadApp.services.Service {
         }
         return ticketRecords;
     }
-    @Override
-    public Record get(Object id) {
+    public Record getByBookingNo(Object id) {
         try {
-            Optional<Ticket> ticketReturned = ticketRepository.findById((Long) id);
+            Optional<Ticket> ticketReturned = ticketRepository.findByBookingBookingNo((UUID) id);
             return ticketReturned.map(TicketRecord::copy).orElse(null);
         }catch (Exception ex){return null;}
     }
-    public Boolean deleteByBookingNo(UUID voyageNo) {
+    public Boolean deleteByBookingNo(UUID bookingNo) {
         try {
-            return ticketRepository.deleteByBooking(voyageNo);
+            Optional<Ticket> tOpt = ticketRepository.findByBookingBookingNo(bookingNo);
+            if(tOpt.isPresent()){
+                ticketRepository.deleteByBookingBookingNo(bookingNo);
+                return true;
+            }
         }catch(Exception ex){return false;}
+        return false;
     }
-    @Override
+
     public Record update(Record recordObject) {
         try {
             TicketRecord propertiesToUpdate = (TicketRecord) recordObject;
-            Optional<Ticket> ticketReturned = ticketRepository.findByBooking(propertiesToUpdate.bookingNo());
+            Optional<Ticket> ticketReturned = ticketRepository.findByBookingBookingNo(propertiesToUpdate.bookingNo());
 
             if (ticketReturned.isPresent()) {
                 Ticket ticket = ticketReturned.get();
-                String status = propertiesToUpdate.status().name();
+                BookingStatus status = propertiesToUpdate.status();
 
-                switch(status){
-                    case "CANCELLED": {ticketRepository.deleteById(ticket.getId());
-                                        return TicketRecord.copy(ticket);}
-                    case "USED": {ticket.setStatus(BookingStatus.USED);
-                                    ticketRepository.save(ticket);
-                                    return TicketRecord.copy(ticket);}
-                    default:break;
+                switch (status) {
+                    case CANCELLED -> {
+                        ticketRepository.deleteById(ticket.getId());
+                        return TicketRecord.copy(ticket);
+                    }
+                    case USED -> {
+                        ticket.setStatus(BookingStatus.USED);
+                        ticketRepository.save(ticket);
+                        return TicketRecord.copy(ticket);
+                    }
+                    default -> {
+                    }
                 }
             }
         }catch (Exception ex){return null;}
-        return null;
-    }
-
-    @Override
-    public Record create(Record recordObject) {
-        return null;
-    }
-
-    @Override
-    public Boolean delete(Object id) {
         return null;
     }
 }

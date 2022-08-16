@@ -1,8 +1,5 @@
 package com.seven.RailroadApp.models.entities;
 
-import com.seven.RailroadApp.models.enums.BookingStatus;
-import com.seven.RailroadApp.models.enums.SeatType;
-import com.seven.RailroadApp.models.enums.TravelTime;
 import com.seven.RailroadApp.models.enums.VoyageStatus;
 import lombok.Data;
 

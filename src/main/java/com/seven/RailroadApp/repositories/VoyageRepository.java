@@ -8,5 +8,4 @@ import java.util.UUID;
 
 @Repository
 public interface VoyageRepository extends JpaRepository<Voyage, UUID> {
-    Iterable<Voyage> findAllByPassenger(Long passengerId);
 }
