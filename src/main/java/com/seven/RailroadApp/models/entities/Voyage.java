@@ -3,19 +3,22 @@ package com.seven.RailroadApp.models.entities;
 import com.seven.RailroadApp.models.enums.BookingStatus;
 import com.seven.RailroadApp.models.enums.SeatType;
 import com.seven.RailroadApp.models.enums.TravelTime;
+import com.seven.RailroadApp.models.enums.VoyageStatus;
 import lombok.Data;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.UUID;
 
-@Entity(name="booking")
-@Table(name="booking")
+@Entity(name="voyage")
+@Table(name="voyage")
 @Data
-public class Booking {
+public class Voyage {
     @Id
-    @Column(columnDefinition ="booking_no uuid NOT NULL DEFAULT uuid_generate_v4()")
-    private UUID bookingNo;
+    @Column(nullable = false)
+    private UUID voyageNo;
 
     //Join columns on composite primary key
     @ManyToOne
@@ -32,28 +35,17 @@ public class Booking {
     })
     private Location arrivalLocation;
 
-    @ManyToOne
-    @JoinColumn(name="passengerId",referencedColumnName="id")
-    private User passenger;
-
-    @Column(nullable = false)
-    private LocalDateTime bookingDate;
-
     @Column(nullable = false)
     private LocalDate travelDate;
 
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private TravelTime travelTime;
+    private LocalTime travelTime;
+
+    @Column(nullable = true)
+    private LocalDateTime arrivalDateTime;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private SeatType seatType;
+    private VoyageStatus status;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private BookingStatus status;
-
-
-
-}
+    }

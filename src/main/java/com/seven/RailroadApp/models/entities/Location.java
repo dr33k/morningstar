@@ -10,7 +10,6 @@ import javax.persistence.*;
 @Data
 public class Location {
     @EmbeddedId
-
     private LocationId locationId;
 
     @Column(nullable = false)

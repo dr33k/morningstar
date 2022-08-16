@@ -30,7 +30,6 @@ public class UserController implements Controller<UserUpdateRequest,String>{
                 .timestamp(LocalDateTime.now())
                 .build());
     }
-
     @Override
     public ResponseEntity<Response> getResource(@RequestParam(name="email") String email) {
         UserRecord userRecord = (UserRecord) userService.get(email);

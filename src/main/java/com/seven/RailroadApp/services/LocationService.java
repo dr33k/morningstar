@@ -42,7 +42,6 @@ public class LocationService implements com.seven.RailroadApp.services.Service {
             );
         }
     }
-
     @Override
     public Boolean delete(Object id) {
         try {
@@ -54,14 +53,11 @@ public class LocationService implements com.seven.RailroadApp.services.Service {
         }
         return false;
     }
-
     @Override
     public Record create(Record recordObject) {
         try {//Cast recordObject into LocationRecord class
             LocationRecord locationRecord = (LocationRecord) recordObject;
 
-            Optional<Location> locationReturned = locationRepository.findById(locationRecord.locationId());
-            if(locationReturned.isEmpty()) {
                 //Create Location entity
                 Location location = new Location();
                 BeanUtils.copyProperties(locationRecord, location);
@@ -83,10 +79,6 @@ public class LocationService implements com.seven.RailroadApp.services.Service {
                 //Save
                 locationRepository.save(location);
                 return LocationRecord.copy(location);
-            }
-            return new LocationRecord(null, null, null,
-                    "Location with this id already exists"
-            );
         }catch(Exception ex) {
             return new LocationRecord(null, null, null,
                     "Location could be created, please try again later. Why? "+ex.getMessage()

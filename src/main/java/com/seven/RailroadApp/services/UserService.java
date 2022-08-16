@@ -92,7 +92,6 @@ public class UserService implements com.seven.RailroadApp.services.Service {
         }
         return false;
     }
-
     @Override
     public Record update(Record recordObject) {
         UserRecord ur = (UserRecord) recordObject;
@@ -134,74 +133,4 @@ public class UserService implements com.seven.RailroadApp.services.Service {
     }
         return null;
 }
-
- /*   public Record update(String email, String property, String newValue) {
-        try {//Retrieve indicated User Object from the Database
-            Optional<User> userReturned = userRepository.findByEmail(email);
-
-            if (userReturned.isPresent()) {
-                User user = userReturned.get();
-                Boolean modified = false;
-
-                switch (property) {
-                    case "FNAME": {
-                        //If the property is not null and is a different value from before
-                        if (newValue != null && !newValue.equals(user.getFirstName())) {
-                            user.setFirstName(newValue);
-                            modified = (modified) ? modified : true;
-                            break;
-                        }
-                    }
-                    case "LNAME": {
-                        if (newValue != null && !newValue.equals(user.getLastName())) {
-                            user.setLastName(newValue);
-                            modified = (modified) ? modified : true;
-                            break;
-                        }
-                    }
-                    case "EMAIL": {
-                        if (newValue != null && !newValue.equals(user.getEmail())) {
-                            user.setEmail(newValue);
-                            modified = (modified) ? modified : true;
-                            break;
-                        }
-                    }
-                    case "PASS": {
-                        if (newValue != null && !newValue.equals(user.getPassword())) {
-                            user.setPassword(newValue);
-                            modified = (modified) ? modified : true;
-                            break;
-                        }
-                    }
-                    case "PHONE": {
-                        if (newValue != null && !newValue.equals(user.getPhoneNo())) {
-                            user.setPhoneNo(newValue);
-                            modified = (modified) ? modified : true;
-                            break;
-                        }
-                    }
-                    case "DOB": {
-                        if (newValue != null && !newValue.equals(user.getDateBirth())) {
-                            user.setDateBirth(LocalDate.parse(newValue));
-                            modified = (modified) ? modified : true;
-                            break;
-                        }
-                    }
-                    default:
-                        return new UserRecord(null, null, null, null, null, null, null, null,
-                                "Check the property and new_value credentials you want to update carefully");
-                }
-                if (modified) {
-                    userRepository.save(user);
-                    return UserRecord.copy(user);
-                }
-            }
-        } catch (Exception ex) {
-            return new UserRecord(null, null, null, null, null, null, null, null,
-                    "User could not be modified, please try again. Why? " + ex.getMessage()
-            );
-        }
-        return null;
-    }
-  */
 }

@@ -33,9 +33,9 @@ public class TicketService implements com.seven.RailroadApp.services.Service {
             return ticketReturned.map(TicketRecord::copy).orElse(null);
         }catch (Exception ex){return null;}
     }
-    public Boolean deleteByBookingNo(UUID bookingNo) {
+    public Boolean deleteByBookingNo(UUID voyageNo) {
         try {
-            return ticketRepository.deleteByBooking(bookingNo);
+            return ticketRepository.deleteByBooking(voyageNo);
         }catch(Exception ex){return false;}
     }
     @Override

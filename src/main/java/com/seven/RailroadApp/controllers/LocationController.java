@@ -70,8 +70,6 @@ public class LocationController implements Controller<LocationRequest, LocationI
     public ResponseEntity<Response> createResource(@Valid @RequestBody LocationRequest request) {
         LocationRecord locationRecord = LocationRecord.copy(request);
 
-        LocationRecord exists = (LocationRecord) locationService.get(locationRecord.locationId());
-        if(exists == null)
         locationRecord = (LocationRecord) locationService.create(locationRecord);
         return (!(locationRecord.message() == null))?
                 ResponseEntity.badRequest().body(Response.builder()
