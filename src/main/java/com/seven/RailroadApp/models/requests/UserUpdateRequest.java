@@ -19,6 +19,8 @@ public class UserUpdateRequest {
     String lastName ;
     @Pattern(regexp = "^[+-][0-9]{11,15}$",message = "Name must be at least 2 characters long")
     String phoneNo ;
+    @Email(regexp = "[A-Za-z0-9\\-]{2,}@[A-Za-z'\\-]{2,}\\.[A-Za-z'\\-]{2,}", message = "Invalid email format")
+    private String email;
     @Pattern(regexp = "^[A-Za-z\\d'.!@#$%^&*_\\-]{8,}",message = "Password must be at least 8 characters long")
     String password;
     @Past(message = "Future and current dates not allowed")

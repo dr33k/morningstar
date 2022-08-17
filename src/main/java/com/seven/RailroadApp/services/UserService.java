@@ -142,6 +142,35 @@ public class UserService implements com.seven.RailroadApp.services.Service, User
         return null;
 }
 
+    public Record updateUserRoleForAdmin(Record recordObject) {
+        UserRecord ur = (UserRecord) recordObject;
+        try {//Retrieve indicated User Object from the Database
+            Optional<User> userReturned = userRepository.findByEmail(ur.email());
+
+            if (userReturned.isPresent()) {
+                User user = userReturned.get();
+                Boolean modified = false;
+
+                //If the property is not null and is a different value from before
+                if (ur.role() != null && !ur.role().equals(user.getRole())) {
+                    user.setRole(ur.role());
+                    modified = (modified) ? modified : true;
+                }
+                if (modified) {
+                    userRepository.save(user);
+                    return UserRecord.copy(user);
+                }
+            }
+        } catch(   Exception ex)
+
+        {
+            return new UserRecord(null, null, null, null,null, null, null, null, null, null, null, null,
+                    "User could not be modified, please try again. Why? " + ex.getMessage()
+            );
+        }
+        return null;
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return  userRepository.findByEmail(username).orElseThrow(()->new UsernameNotFoundException("Username not found"));

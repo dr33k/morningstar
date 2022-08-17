@@ -1,5 +1,7 @@
 package com.seven.RailroadApp.controllers;
 
+import com.seven.RailroadApp.config.security.UserAuthentication;
+import com.seven.RailroadApp.models.entities.User;
 import com.seven.RailroadApp.models.records.BookingRecord;
 import com.seven.RailroadApp.models.records.UserRecord;
 import com.seven.RailroadApp.models.requests.BookingRequest;
@@ -25,10 +27,13 @@ public class BookingController implements Controller<BookingRequest, UUID> {
     BookingService bookingService;
     @Autowired
     UserService userService;
+    @Autowired
+    UserAuthentication userAuthentication;
 
     @Override
     public ResponseEntity<Response> getAllResources() {
-        Set<BookingRecord> bookingRecords = bookingService.getAll();
+        User sender = (User) userAuthentication.getInstance().getPrincipal();
+        Set<BookingRecord> bookingRecords = bookingService.getAllByPassenger(sender.getEmail());
         return ResponseEntity.ok(Response.builder()
                 .data(bookingRecords)
                 .isError(false)
@@ -39,7 +44,9 @@ public class BookingController implements Controller<BookingRequest, UUID> {
 
     @Override
     public ResponseEntity<Response> getResource(@RequestParam(name = "id") UUID uuid) {
+        User sender = (User) userAuthentication.getInstance().getPrincipal();
         BookingRecord bookingRecord = (BookingRecord) bookingService.get(uuid);
+
         if (bookingRecord == null) {       //If resource was not found
             return ResponseEntity.status(404).body(Response.builder()
                     .isError(true)
@@ -54,7 +61,15 @@ public class BookingController implements Controller<BookingRequest, UUID> {
                     .status(HttpStatus.NOT_FOUND)
                     .timestamp(LocalDateTime.now())
                     .build());
-        } else {
+        }
+        else if (!sender.getEmail().equals(bookingRecord.passengerEmail())) {//If user does not own booking
+            return ResponseEntity.ok(Response.builder()
+                    .isError(false)
+                    .message("You have no reservations by this booking number")
+                    .status(HttpStatus.OK)
+                    .timestamp(LocalDateTime.now())
+                    .build());
+        }else {
             return ResponseEntity.ok(Response.builder()
                     .data(Set.of(bookingRecord))
                     .isError(false)
@@ -62,34 +77,6 @@ public class BookingController implements Controller<BookingRequest, UUID> {
                     .timestamp(LocalDateTime.now())
                     .build());
         }
-    }
-
-    @GetMapping("/passenger")
-    public ResponseEntity<Response> getAllResourcesByPassenger(@RequestParam(name = "passenger_id") String email) {
-        UserRecord ur = (UserRecord) userService.get(email);
-            if (ur == null) {       //If resource was not found
-                return ResponseEntity.status(404).body(Response.builder()
-                        .isError(true)
-                        .message("User " + email + " is not available")
-                        .status(HttpStatus.NOT_FOUND)
-                        .timestamp(LocalDateTime.now())
-                        .build());
-            } else if (!(ur.message() == null)) {   //If there was an error during the process
-                return ResponseEntity.status(404).body(Response.builder()
-                        .isError(true)
-                        .message(ur.message())
-                        .status(HttpStatus.NOT_FOUND)
-                        .timestamp(LocalDateTime.now())
-                        .build());
-            } else {
-                Set<BookingRecord> bookingRecords = bookingService.getAllByPassenger(email);
-                return ResponseEntity.ok(Response.builder()
-                        .data(bookingRecords)
-                        .isError(false)
-                        .status(HttpStatus.OK)
-                        .timestamp(LocalDateTime.now())
-                        .build());
-            }
     }
 
     @Override
@@ -124,8 +111,10 @@ public class BookingController implements Controller<BookingRequest, UUID> {
 
     @Override
     public ResponseEntity<Response> updateResource(@Valid @RequestBody BookingRequest request) {
+        User sender = (User) userAuthentication.getInstance().getPrincipal();
         BookingRecord bookingRecord = BookingRecord.copy(request);
         bookingRecord = (BookingRecord) bookingService.update(bookingRecord);
+
         if (bookingRecord == null) {       //If resource was not found
             return ResponseEntity.of(Optional.of(Response.builder()
                     .isError(true)
@@ -142,6 +131,13 @@ public class BookingController implements Controller<BookingRequest, UUID> {
                     .status(HttpStatus.NOT_MODIFIED)
                     .timestamp(LocalDateTime.now())
                     .build()));
+        }else if (!sender.getEmail().equals(bookingRecord.passengerEmail())) {//If user does not own booking
+            return ResponseEntity.status(404).body(Response.builder()
+                    .isError(true)
+                    .message("You have no reservations by this booking number")
+                    .status(HttpStatus.NOT_FOUND)
+                    .timestamp(LocalDateTime.now())
+                    .build());
         } else {
             return ResponseEntity.ok(Response.builder()
                     .data(Set.of(bookingRecord))
@@ -154,6 +150,18 @@ public class BookingController implements Controller<BookingRequest, UUID> {
 
     @Override
     public ResponseEntity<Response> deleteResource(@RequestParam(name = "id") UUID uuid) {
+        User sender = (User) userAuthentication.getInstance().getPrincipal();
+
+        BookingRecord bookingRecord = (BookingRecord) bookingService.get(uuid);
+        if (!sender.getEmail().equals(bookingRecord.passengerEmail())) {//If user does not own booking
+            return ResponseEntity.status(404).body(Response.builder()
+                    .isError(true)
+                    .message("You have no reservations by this booking number")
+                    .status(HttpStatus.NOT_FOUND)
+                    .timestamp(LocalDateTime.now())
+                    .build());
+        }
+
         Boolean deleted = bookingService.delete(uuid);
         return (deleted) ?
                 ResponseEntity.ok(Response.builder()
