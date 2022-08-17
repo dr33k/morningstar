@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Controller
 @RequestMapping("/")
 public class TemplateController{
-
-    @GetMapping("/dashboard")
-    public String dashboard(){return "dashboard";}
+    @GetMapping
+    public String landing(){return "login";}
     @GetMapping("/login")
     public String login(){return "login";}
+    @GetMapping("/dashboard")
+    public String dashboard(){return "dashboard";}
+
 }
