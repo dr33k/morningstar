@@ -1,11 +1,16 @@
 package com.seven.RailroadApp.services;
 
+import com.seven.RailroadApp.config.security.PasswordEncoder;
 import com.seven.RailroadApp.models.entities.User;
 import com.seven.RailroadApp.models.enums.UserRole;
 import com.seven.RailroadApp.models.records.UserRecord;
 import com.seven.RailroadApp.repositories.UserRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,9 +23,11 @@ import java.util.Set;
 
 @Service
 @Transactional
-public class UserService implements com.seven.RailroadApp.services.Service {
+public class UserService implements com.seven.RailroadApp.services.Service, UserDetailsService {
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public Set<UserRecord> getAll() {
@@ -44,7 +51,7 @@ public class UserService implements com.seven.RailroadApp.services.Service {
              */
             return userReturned.map(UserRecord::copy).orElse(null);
         } catch (Exception ex) {
-            return new UserRecord(null, null, null, null, null, null, null, null,
+            return new UserRecord(null, null, null,null, null, null, null, null, null, null, null, null,
                     "User not found, please make sure search credentials are entered properly. Possibly: " + ex.getMessage()
             );
         }
@@ -65,15 +72,16 @@ public class UserService implements com.seven.RailroadApp.services.Service {
                 user.setRole(UserRole.PASSENGER);
                 //Set date of registration
                 user.setDateReg(LocalDateTime.now());
+                user.setPassword(passwordEncoder.encode(userRecord.password()));
 
                 //Save
                 userRepository.save(user);
                 return UserRecord.copy(user);
             }
-            return new UserRecord(null, null, null, null, null, null, null, null,
+            return new UserRecord(null, null, null, null, null, null, null, null,null, null, null, null,
                     "User with this email already exists");
         } catch (Exception ex) {
-            return new UserRecord(null, null, null, null, null, null, null, null,
+            return new UserRecord(null, null, null, null, null, null, null, null,null, null, null, null,
                     "User could be created, please try again later. Why? " + ex.getMessage());
         }
     }
@@ -127,10 +135,15 @@ public class UserService implements com.seven.RailroadApp.services.Service {
     } catch(   Exception ex)
 
     {
-        return new UserRecord(null, null, null, null, null, null, null, null,
+        return new UserRecord(null, null, null, null,null, null, null, null, null, null, null, null,
                 "User could not be modified, please try again. Why? " + ex.getMessage()
         );
     }
         return null;
 }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return  userRepository.findByEmail(username).orElseThrow(()->new UsernameNotFoundException("Username not found"));
+    }
 }

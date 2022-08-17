@@ -16,11 +16,15 @@ public class UserUpdateRequest {
     @Pattern(regexp = "^[A-Za-z'\\-]{2,30}",message = "Name must be at least 2 characters long")
     String firstName;
     @Pattern(regexp = "^[A-Za-z'\\-]{2,30}",message = "Name must be at least 2 characters long")
-    String lastName = null;
+    String lastName ;
     @Pattern(regexp = "^[+-][0-9]{11,15}$",message = "Name must be at least 2 characters long")
-    String phoneNo = null;
+    String phoneNo ;
     @Pattern(regexp = "^[A-Za-z\\d'.!@#$%^&*_\\-]{8,}",message = "Password must be at least 8 characters long")
-    String password = null;
+    String password;
     @Past(message = "Future and current dates not allowed")
-    LocalDate dateBirth = null;
+    LocalDate dateBirth;
+    Boolean isAccountNonExpired;
+    Boolean isAccountNonLocked;
+    Boolean isCredentialsNonExpired;
+    Boolean isEnabled;
 }

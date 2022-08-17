@@ -86,7 +86,7 @@ public class VoyageService implements com.seven.RailroadApp.services.Service {
                 }
             }
         } catch (Exception ex) {
-            return new UserRecord(null, null, null, null, null, null, null, null,
+            return new VoyageRecord(null, null, null, null, null, null, null,
                     "Voyage Record could be created, please try again later. Why? " + ex.getMessage());
         }
         return null;

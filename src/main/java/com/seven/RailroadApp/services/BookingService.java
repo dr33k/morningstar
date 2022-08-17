@@ -1,5 +1,6 @@
 package com.seven.RailroadApp.services;
 
+import com.seven.RailroadApp.config.security.UserAuthentication;
 import com.seven.RailroadApp.models.entities.*;
 import com.seven.RailroadApp.models.enums.BookingStatus;
 import com.seven.RailroadApp.models.enums.SeatType;
@@ -10,6 +11,7 @@ import com.seven.RailroadApp.repositories.UserRepository;
 import com.seven.RailroadApp.repositories.VoyageRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +27,7 @@ public class BookingService implements com.seven.RailroadApp.services.Service {
     @Autowired
     private VoyageRepository voyageRepository;
     @Autowired
-    private UserRepository userRepository;
+    private UserAuthentication userAuthentication;
     @Autowired
     private TicketService ticketService;
 
@@ -78,8 +80,8 @@ public class BookingService implements com.seven.RailroadApp.services.Service {
                 //Set Voyage
                 booking.setVoyage(vOpt.get());
                 //Set Passenger
-                Optional<User> uOpt = userRepository.findByEmail("nigeria2022@gmail.com");
-                booking.setPassenger(uOpt.get());
+                User user = (User) userAuthentication.getInstance().getPrincipal();
+                booking.setPassenger(user);
                 //Set booking status
                 booking.setStatus(BookingStatus.VALID);
                 //Set booking no
