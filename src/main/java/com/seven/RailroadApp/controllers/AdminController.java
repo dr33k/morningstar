@@ -22,7 +22,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-@RestController("/administrator")
+@RestController
+@RequestMapping("/administrator")
 public class AdminController {
 
     @Autowired
