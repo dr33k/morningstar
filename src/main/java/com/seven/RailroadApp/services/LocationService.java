@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-
+import static com.seven.RailroadApp.models.enums.LocationStatus.*;
 @Service
 @Transactional
 public class LocationService implements com.seven.RailroadApp.services.Service {
@@ -37,7 +37,7 @@ public class LocationService implements com.seven.RailroadApp.services.Service {
              */
             return locationReturned.map(LocationRecord::copy).orElse(null);
         } catch (Exception ex) {
-            return new LocationRecord(null, null, null,
+            return new LocationRecord(null, null, null,null,
                     "Location not found, please make sure search credentials are entered properly. Possibly: "+ex.getMessage()
             );
         }
@@ -47,7 +47,12 @@ public class LocationService implements com.seven.RailroadApp.services.Service {
         try {
             LocationId locationId = (LocationId) id;
             Optional<Location> lOpt = locationRepository.findById(locationId);
-            if(lOpt.isPresent()){locationRepository.deleteById(locationId);return true;}
+            if(lOpt.isPresent()) {
+                if (lOpt.get().getStatus().equals(UNUSED)) {
+                    locationRepository.deleteById(locationId);
+                    return true;
+                }
+            }
         } catch (Exception ex) {
             return false;
         }
@@ -76,11 +81,14 @@ public class LocationService implements com.seven.RailroadApp.services.Service {
                 //Set LocationId object
                 location.setLocationId(locationId);
 
+                //Set Location status
+                location.setStatus(UNUSED);
+
                 //Save
                 locationRepository.save(location);
                 return LocationRecord.copy(location);
         }catch(Exception ex) {
-            return new LocationRecord(null, null, null,
+            return new LocationRecord(null, null, null,null,
                     "Location could be created, please try again later. Why? "+ex.getMessage()
             );
         }
@@ -100,6 +108,10 @@ public class LocationService implements com.seven.RailroadApp.services.Service {
                     location.setStationName(propertiesToUpdate.stationName());
                     modified =  (modified)?modified:true;
                 }
+                if(propertiesToUpdate.status() != null && propertiesToUpdate.status().equals(INACTIVE)&& location.getStatus().equals(USED)){
+                    location.setStatus(INACTIVE);
+                    modified =  (modified)?modified:true;
+                }
                 if(modified) {
                     ;;;
                     locationRepository.save(location);
@@ -107,7 +119,7 @@ public class LocationService implements com.seven.RailroadApp.services.Service {
                 }
             }
         } catch (Exception ex) {
-            return new LocationRecord(null, null, null,
+            return new LocationRecord(null, null, null,null,
                     "Location could not be modified, please try again. Why? "+ex.getMessage()
             );
         }

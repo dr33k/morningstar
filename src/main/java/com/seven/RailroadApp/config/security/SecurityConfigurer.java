@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -29,7 +30,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
 
                 .authorizeRequests()
-                .antMatchers("/", "/register/**").permitAll()
+                .antMatchers(HttpMethod.GET,"/", "/register/**").permitAll()
                 .antMatchers("/administrator/**").hasRole("ADMIN")
                 .antMatchers("/dashboard/**","/user/**", "/booking/**", "/ticket/**").hasAnyRole("ADMIN", "PASSENGER", "OFFICER")
                 .anyRequest().authenticated()
@@ -37,7 +38,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .and()
                 .formLogin()
                 .loginPage("/login").permitAll()
-                .failureForwardUrl("/failed")
+                .failureForwardUrl("/login")
                 .defaultSuccessUrl("/swagger-ui.html", true)
 
                 .and()
@@ -50,7 +51,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                .invalidSessionUrl("/invalid_session")
+                .invalidSessionUrl("/login")
 
                 .and()
                 .logout()

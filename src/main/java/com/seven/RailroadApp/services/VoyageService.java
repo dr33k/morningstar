@@ -3,6 +3,7 @@ package com.seven.RailroadApp.services;
 import com.seven.RailroadApp.models.entities.Voyage;
 import com.seven.RailroadApp.models.entities.Location;
 import com.seven.RailroadApp.models.entities.User;
+import com.seven.RailroadApp.models.enums.LocationStatus;
 import com.seven.RailroadApp.models.enums.VoyageStatus;
 import com.seven.RailroadApp.models.records.VoyageRecord;
 import com.seven.RailroadApp.models.records.LocationRecord;
@@ -67,18 +68,25 @@ public class VoyageService implements com.seven.RailroadApp.services.Service {
             Optional<Location> l1Opt = locationReposistory.findById(voyageRecord.arrivalLocationId());
 
             if (l1Opt.isPresent()) {
-                voyage.setArrivalLocation(l1Opt.get());
+                Location l1 = l1Opt.get();
+                voyage.setArrivalLocation(l1);
 
                 //Set Departure Location
                 Optional<Location> l2Opt = locationReposistory.findById(voyageRecord.departureLocationId());
                 if (l2Opt.isPresent()) {
-                    voyage.setDepartureLocation(l2Opt.get());
+                    Location l2 = l1Opt.get();
+                    voyage.setDepartureLocation(l2);
 
                     //Set voyage status
                     voyage.setStatus(VoyageStatus.PENDING);
                     //Set voyage no
                     voyage.setVoyageNo(UUID.randomUUID());
 
+                    //Update locations
+                    l1.setStatus(LocationStatus.USED);
+                    l2.setStatus(LocationStatus.USED);
+                    locationReposistory.save(l1);
+                    locationReposistory.save(l2);
                     //Save
                     voyageRepository.save(voyage);
 

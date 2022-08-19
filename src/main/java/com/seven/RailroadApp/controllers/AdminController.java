@@ -1,10 +1,9 @@
 package com.seven.RailroadApp.controllers;
 
-import com.seven.RailroadApp.models.entities.User;
 import com.seven.RailroadApp.models.records.BookingRecord;
 import com.seven.RailroadApp.models.records.TicketRecord;
 import com.seven.RailroadApp.models.records.UserRecord;
-import com.seven.RailroadApp.models.requests.BookingRequest;
+import com.seven.RailroadApp.models.requests.BookingUpdateRequest;
 import com.seven.RailroadApp.models.requests.UserUpdateRequest;
 import com.seven.RailroadApp.models.responses.Response;
 import com.seven.RailroadApp.services.BookingService;
@@ -77,8 +76,9 @@ public class AdminController {
     }
 
     @GetMapping("/users/search")
-    public ResponseEntity<Response> getUser(@RequestParam(name = "email") String email) {
-        UserRecord userRecord = (UserRecord) userService.get(email);
+    public ResponseEntity<Response> getUser(@Valid @RequestParam(name = "id")String id) {
+        UserRecord userRecord = (UserRecord) userService.get(id);
+
         if (userRecord == null) {       //If resource was not found
             return ResponseEntity.status(404).body(Response.builder()
                     .isError(true)
@@ -145,12 +145,12 @@ public class AdminController {
     }
 
     @GetMapping("/passenger_bookings")
-    public ResponseEntity<Response> getAllBookingsByPassenger(@RequestParam(name = "passenger_id") String email) {
-        UserRecord ur = (UserRecord) userService.get(email);
+    public ResponseEntity<Response> getAllBookingsByPassenger(@RequestParam(name = "id") String id) {
+        UserRecord ur = (UserRecord) userService.get(id);
         if (ur == null) {       //If resource was not found
             return ResponseEntity.status(404).body(Response.builder()
                     .isError(true)
-                    .message("User " + email + " is not available")
+                    .message("User " + id + " is not available")
                     .status(HttpStatus.NOT_FOUND)
                     .timestamp(LocalDateTime.now())
                     .build());
@@ -162,7 +162,7 @@ public class AdminController {
                     .timestamp(LocalDateTime.now())
                     .build());
         } else {
-            Set<BookingRecord> bookingRecords = bookingService.getAllByPassenger(email);
+            Set<BookingRecord> bookingRecords = bookingService.getAllByPassenger(id);
             return ResponseEntity.ok(Response.builder()
                     .data(bookingRecords)
                     .isError(false)
@@ -173,13 +173,13 @@ public class AdminController {
     }
 
     @GetMapping("/bookings/search")
-    public ResponseEntity<Response> getBooking(@RequestParam(name = "id") UUID uuid) {
-        BookingRecord bookingRecord = (BookingRecord) bookingService.get(uuid);
+    public ResponseEntity<Response> getBooking(@Valid @RequestParam(name = "id")String id) {
+        BookingRecord bookingRecord = (BookingRecord) bookingService.get(id);
 
         if (bookingRecord == null) {       //If resource was not found
             return ResponseEntity.status(404).body(Response.builder()
                     .isError(true)
-                    .message("Booking " + bookingRecord.bookingNo() + " is not available")
+                    .message("Booking " + id + " is not available")
                     .status(HttpStatus.NOT_FOUND)
                     .timestamp(LocalDateTime.now())
                     .build());
@@ -201,7 +201,7 @@ public class AdminController {
     }
 
     @PutMapping("/update_user_booking")
-    public ResponseEntity<Response> updateResource(@Valid @RequestBody BookingRequest request) {
+    public ResponseEntity<Response> updateBooking(@Valid @RequestBody BookingUpdateRequest request) {
         BookingRecord bookingRecord = BookingRecord.copy(request);
         bookingRecord = (BookingRecord) bookingService.update(bookingRecord);
 

@@ -13,6 +13,9 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'voyage_status') THEN
         CREATE TYPE voyage_status AS ENUM('PENDING','IN_TRANSIT','COMPLETED','CANCELLED');
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'location_status') THEN
+            CREATE TYPE location_status AS ENUM('UNUSED','USED','INACTIVE');
+        END IF;
 
    END
     $$;

@@ -2,7 +2,8 @@ package com.seven.RailroadApp.models.records;
 
 import com.seven.RailroadApp.models.entities.*;
 import com.seven.RailroadApp.models.enums.VoyageStatus;
-import com.seven.RailroadApp.models.requests.VoyageRequest;
+import com.seven.RailroadApp.models.requests.VoyageCreateRequest;
+import com.seven.RailroadApp.models.requests.VoyageUpdateRequest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,14 +32,26 @@ public record VoyageRecord(
                 null
         );
     }
-    public static VoyageRecord copy(VoyageRequest b){
+    public static VoyageRecord copy(VoyageCreateRequest b){
         return new VoyageRecord(
-                b.getVoyageNo(),
+                null,
                 b.getDepartureLocationId(),
                 b.getArrivalLocationId(),
                 b.getTravelDate(),
                 b.getTravelTime(),
                 null,
+                null,
+                null
+        );
+    }
+    public static VoyageRecord copy(VoyageUpdateRequest b){
+        return new VoyageRecord(
+                b.getVoyageNo(),
+                null,
+                null,
+                null,
+                null,
+                b.getArrivalDateTime(),
                 b.getStatus(),
                 null
         );

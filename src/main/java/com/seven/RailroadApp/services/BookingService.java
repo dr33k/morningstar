@@ -171,7 +171,7 @@ public class BookingService implements com.seven.RailroadApp.services.Service {
                         booking.setStatus(CANCELLED);
                         modified = true;
                     }
-                } else if (propertiesToUpdate.status().equals(USED) && !propertiesToUpdate.status().equals(status)) {
+                } else if (propertiesToUpdate.status().equals(USED) && !propertiesToUpdate.status().equals(status) && status.equals(VALID)) {
                     //Update ticket to used also
                     TicketRecord tr = new TicketRecord(booking.getBookingNo(), null, BookingStatus.USED);
                     tr = (TicketRecord) ticketService.update(tr);

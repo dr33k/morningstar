@@ -1,16 +1,14 @@
 package com.seven.RailroadApp.controllers;
 
 import com.seven.RailroadApp.models.records.VoyageRecord;
-import com.seven.RailroadApp.models.requests.VoyageRequest;
+import com.seven.RailroadApp.models.requests.VoyageCreateRequest;
+import com.seven.RailroadApp.models.requests.VoyageUpdateRequest;
 import com.seven.RailroadApp.models.responses.Response;
 import com.seven.RailroadApp.services.VoyageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -21,11 +19,11 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/administrator/voyage")
-public class VoyageController implements Controller<VoyageRequest, UUID> {
+public class VoyageController {
     @Autowired
     VoyageService voyageService;
 
-    @Override
+    @GetMapping
     public ResponseEntity<Response> getAllResources() {
         Set<VoyageRecord> voyageRecords = voyageService.getAll();
         return ResponseEntity.ok(Response.builder()
@@ -36,9 +34,9 @@ public class VoyageController implements Controller<VoyageRequest, UUID> {
                 .build());
     }
 
-    @Override
-    public ResponseEntity<Response> getResource(@RequestParam(name = "id") UUID uuid) {
-        VoyageRecord voyageRecord = (VoyageRecord) voyageService.get(uuid);
+    @GetMapping("/search")
+    public ResponseEntity<Response> getResource(@Valid @RequestParam(name = "id") UUID voyageNo) {
+        VoyageRecord voyageRecord = (VoyageRecord) voyageService.get(voyageNo);
         if (voyageRecord == null) {       //If resource was not found
             return ResponseEntity.status(404).body(Response.builder()
                     .isError(true)
@@ -63,8 +61,8 @@ public class VoyageController implements Controller<VoyageRequest, UUID> {
         }
     }
 
-    @Override
-    public ResponseEntity<Response> createResource(@Valid @RequestBody VoyageRequest request) {
+    @PostMapping("/create")
+    public ResponseEntity<Response> createResource(@Valid @RequestBody VoyageCreateRequest request) {
         VoyageRecord voyageRecord = VoyageRecord.copy(request);
 
         voyageRecord = (VoyageRecord) voyageService.create(voyageRecord);
@@ -94,8 +92,8 @@ public class VoyageController implements Controller<VoyageRequest, UUID> {
         }
     }
 
-    @Override
-    public ResponseEntity<Response> updateResource(@Valid @RequestBody VoyageRequest request) {
+    @PutMapping("/update")
+    public ResponseEntity<Response> updateResource(@Valid @RequestBody VoyageUpdateRequest request) {
         VoyageRecord voyageRecord = VoyageRecord.copy(request);
         voyageRecord = (VoyageRecord) voyageService.update(voyageRecord);
         if (voyageRecord == null) {       //If resource was not found
@@ -124,8 +122,4 @@ public class VoyageController implements Controller<VoyageRequest, UUID> {
         }
     }
 
-    @Override
-    public ResponseEntity<Response> deleteResource(UUID uuid) {
-        return null;
-    }
 }

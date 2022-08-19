@@ -3,7 +3,8 @@ package com.seven.RailroadApp.models.records;
 import com.seven.RailroadApp.models.entities.Booking;
 import com.seven.RailroadApp.models.enums.BookingStatus;
 import com.seven.RailroadApp.models.enums.SeatType;
-import com.seven.RailroadApp.models.requests.BookingRequest;
+import com.seven.RailroadApp.models.requests.BookingCreateRequest;
+import com.seven.RailroadApp.models.requests.BookingUpdateRequest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,14 +32,26 @@ public record BookingRecord(
                 null
         );
     }
-    public static BookingRecord copy(BookingRequest b){
+     public static BookingRecord copy(BookingCreateRequest b){
         return new BookingRecord(
-                b.getBookingNo(),
+                null,
                 b.getVoyageNo(),
                 null,
                 null,
                 null,
                 b.getSeatType(),
+                null,
+                null
+        );
+    }
+    public static BookingRecord copy(BookingUpdateRequest b){
+        return new BookingRecord(
+                b.getBookingNo(),
+                null,
+                null,
+                null,
+                null,
+                null,
                 b.getStatus(),
                 null
         );

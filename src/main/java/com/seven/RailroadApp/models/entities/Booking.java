@@ -21,7 +21,7 @@ public class Booking {
     private Voyage voyage;
 
     @OneToOne
-    @JoinColumn(name="passengerEmail",referencedColumnName = "email")
+    @JoinColumn(name = "passengerId", referencedColumnName = "id")
     private User passenger;
 
     @Column(nullable = false)

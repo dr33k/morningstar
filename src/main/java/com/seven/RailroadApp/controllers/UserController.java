@@ -3,6 +3,7 @@ package com.seven.RailroadApp.controllers;
 import com.seven.RailroadApp.config.security.UserAuthentication;
 import com.seven.RailroadApp.models.entities.User;
 import com.seven.RailroadApp.models.records.UserRecord;
+import com.seven.RailroadApp.models.requests.UserCreateRequest;
 import com.seven.RailroadApp.models.requests.UserUpdateRequest;
 import com.seven.RailroadApp.models.responses.Response;
 import com.seven.RailroadApp.services.UserService;
@@ -18,23 +19,18 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/user")
-public class UserController implements Controller<UserUpdateRequest, String> {
+public class UserController {
     @Autowired
     UserService userService;
     @Autowired
     UserAuthentication userAuthentication;
-
-    @Override
-    public ResponseEntity<Response> getAllResources() {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity<Response> getResource(@RequestParam(name = "email") String email) {
+    @GetMapping("/search")
+    public ResponseEntity<Response> getResource(@Valid @RequestParam(name = "id") String id) {
         //Check if user owns account
         User sender = (User) userAuthentication.getInstance().getPrincipal();
-        if (sender.getEmail().equals(email)) {
-            UserRecord userRecord = (UserRecord) userService.get(email);
+
+        if (sender.getEmail().equals(id)) {
+            UserRecord userRecord = (UserRecord) userService.get(id);
             if (userRecord == null) {       //If resource was not found
                 return ResponseEntity.status(404).body(Response.builder()
                         .isError(true)
@@ -67,16 +63,14 @@ public class UserController implements Controller<UserUpdateRequest, String> {
         }
     }
 
-    @Override
-    public ResponseEntity<Response> createResource(UserUpdateRequest request) {
-        return null;
-    }
-    @Override
+    @PutMapping("/update")
     public ResponseEntity<Response> updateResource(@Valid @RequestBody UserUpdateRequest request) {
         //Check if user owns account
         User sender = (User) userAuthentication.getInstance().getPrincipal();
-        if (sender.getEmail().equals(request.getEmail())) {
-            UserRecord userRecord = UserRecord.copy(request);
+        UserRecord userRecord = UserRecord.copy(request);
+        userRecord = (UserRecord) userService.get(userRecord.email());
+
+        if (sender.getEmail().equals(userRecord.email())) {
             userRecord = (UserRecord) userService.update(userRecord);
             if (userRecord == null) {       //If resource was not found
                 return ResponseEntity.of(Optional.of(Response.builder()
@@ -112,15 +106,16 @@ public class UserController implements Controller<UserUpdateRequest, String> {
                         .build());
             }
         }
-    @Override
-    public ResponseEntity<Response> deleteResource (@RequestParam(name = "email") String email){
+
+    public ResponseEntity<Response> deleteResource ( String id){
             //Check if user owns account
             User sender = (User) userAuthentication.getInstance().getPrincipal();
-            if (sender.getEmail().equals(email)) {
-            Boolean deleted = userService.delete(email);
+
+            if (sender.getEmail().equals(id)) {
+            Boolean deleted = userService.delete(id);
             return (deleted) ?
                     ResponseEntity.ok(Response.builder()
-                            .message("User: " + email + " deleted successfully")
+                            .message("User: " + id + " deleted successfully")
                             .isError(false)
                             .status(HttpStatus.OK)
                             .timestamp(LocalDateTime.now())

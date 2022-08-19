@@ -2,16 +2,14 @@ package com.seven.RailroadApp.controllers;
 
 import com.seven.RailroadApp.models.entities.LocationId;
 import com.seven.RailroadApp.models.records.LocationRecord;
-import com.seven.RailroadApp.models.requests.LocationRequest;
+import com.seven.RailroadApp.models.requests.LocationCreateRequest;
+import com.seven.RailroadApp.models.requests.LocationUpdateRequest;
 import com.seven.RailroadApp.models.responses.Response;
 import com.seven.RailroadApp.services.LocationService;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -22,11 +20,11 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/administrator/location")
-public class LocationController implements Controller<LocationRequest, LocationId> {
+public class LocationController {
     @Autowired
     LocationService locationService;
 
-    @Override
+    @GetMapping
     public ResponseEntity<Response> getAllResources() {
         Set<LocationRecord> locationRecords = locationService.getAll();
         return ResponseEntity.ok(Response.builder()
@@ -36,10 +34,10 @@ public class LocationController implements Controller<LocationRequest, LocationI
                 .timestamp(LocalDateTime.now())
                 .build());
     }
-
-    @Override
-    public ResponseEntity<Response> getResource(@Valid @RequestBody LocationId id) {
-        LocationRecord locationRecord = (LocationRecord) locationService.get(id);
+    @GetMapping("/search")
+    public ResponseEntity<Response> getResource(@RequestParam(name = "stateCode") String stateCode,@RequestParam(name = "stationNo") String stationNo) {
+        LocationId lId = new LocationId(stateCode,stationNo);
+        LocationRecord locationRecord = (LocationRecord) locationService.get(lId);
         if(locationRecord == null) {       //If resource was not found
             return ResponseEntity.status(404).body(Response.builder()
                     .isError(true)
@@ -66,8 +64,8 @@ public class LocationController implements Controller<LocationRequest, LocationI
         }
     }
 
-    @Override
-    public ResponseEntity<Response> createResource(@Valid @RequestBody LocationRequest request) {
+    @PostMapping("/create")
+    public ResponseEntity<Response> createResource(@Valid @RequestBody LocationCreateRequest request) {
         LocationRecord locationRecord = LocationRecord.copy(request);
 
         locationRecord = (LocationRecord) locationService.create(locationRecord);
@@ -87,15 +85,16 @@ public class LocationController implements Controller<LocationRequest, LocationI
                         .build());
     }
 
-    @Override
-    public ResponseEntity<Response> updateResource(@Valid @RequestBody LocationRequest request) {
+    @PutMapping("/update")
+    public ResponseEntity<Response> updateResource(@Valid @RequestBody LocationUpdateRequest request) {
         LocationRecord locationRecord = LocationRecord.copy(request);
         locationRecord = (LocationRecord) locationService.update(locationRecord);
         if(locationRecord == null) {       //If resource was not found
             return ResponseEntity.of(Optional.of(Response.builder()
                     .isError(true)
                     .message("A couple of things you might try checking:" +
-                            "\n*Only the Station Name can be modified. If you wish to modify something else, please delete this location and create another one" +
+                            "\nYou cannot delete a used location, you can only deactivate" +
+                            "\n*Only the Station Name and status can be modified. If you wish to modify something else, please deactivate this location and create another one" +
                             "\n*Make sure the id was entered correctly" +
                             "\n*Make sure you are not trying to update with the same information as before")
                     .status(HttpStatus.NOT_MODIFIED)
@@ -120,17 +119,26 @@ public class LocationController implements Controller<LocationRequest, LocationI
         }
     }
 
-    @Override
-    public ResponseEntity<Response> deleteResource(@Valid @RequestBody LocationId id) {
-        Boolean deleted = locationService.delete(id);
+    @DeleteMapping("/delete")
+    public ResponseEntity<Response> deleteResource(@RequestParam(name = "stateCode") String stateCode,@RequestParam(name = "stationNo") String stationNo) {
+        LocationId lId = new LocationId(stateCode,stationNo);
+        Boolean deleted = locationService.delete(lId);
         return (deleted)?
                 ResponseEntity.ok(Response.builder()
-                        .message("Location "+id.getStateCode()+id.getStationNo()+" deleted successfully")
+                        .message("Location "+lId.getStateCode()+lId.getStationNo()+" deleted successfully")
                         .isError(false)
                         .status(HttpStatus.OK)
                         .timestamp(LocalDateTime.now())
                         .build())
                 :
-                ResponseEntity.notFound().build();
+                ResponseEntity.status(404).body(Response.builder()
+                        .message("This location could not be deleted for the following reasons:" +
+                                "\nIt is not available or not offered by this service" +
+                                "\nIt has already been used as an arrival or destination location for journeys in the past" +
+                                "\nIf you wish to deactivate this location, do so by updating its status")
+                        .isError(false)
+                        .status(HttpStatus.OK)
+                        .timestamp(LocalDateTime.now())
+                        .build());
     }
 }
