@@ -21,6 +21,5 @@ public class VoyageCreateRequest {
     private LocationId departureLocationId;
     private LocationId arrivalLocationId;
     @Future(message = "Past and current dates not allowed")
-    private LocalDate travelDate;
-    private LocalTime travelTime;
+    private LocalDateTime travelDate;
 }

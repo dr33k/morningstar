@@ -1,5 +1,7 @@
 package com.seven.RailroadApp.controllers;
 
+import com.seven.RailroadApp.models.enums.BookingStatus;
+import com.seven.RailroadApp.models.enums.UserRole;
 import com.seven.RailroadApp.models.records.BookingRecord;
 import com.seven.RailroadApp.models.records.TicketRecord;
 import com.seven.RailroadApp.models.records.UserRecord;
@@ -104,8 +106,8 @@ public class AdminController {
     }
 
     @PutMapping("/update_user")
-    public ResponseEntity<Response> updateUserRole(@Valid @RequestBody UserUpdateRequest request) {
-        UserRecord userRecord = UserRecord.copy(request);
+    public ResponseEntity<Response> updateUserRole(@Valid @RequestParam(name = "id")String id,@Valid @RequestParam(name = "role") UserRole role) {
+        UserRecord userRecord = new UserRecord(null,null,null,id,null,null,null,role,null,null,null,null,null);
         userRecord = (UserRecord) userService.updateUserRoleForAdmin(userRecord);
         if (userRecord == null) {       //If resource was not found
             return ResponseEntity.of(Optional.of(Response.builder()
@@ -201,9 +203,9 @@ public class AdminController {
     }
 
     @PutMapping("/update_user_booking")
-    public ResponseEntity<Response> updateBooking(@Valid @RequestBody BookingUpdateRequest request) {
-        BookingRecord bookingRecord = BookingRecord.copy(request);
-        bookingRecord = (BookingRecord) bookingService.update(bookingRecord);
+    public ResponseEntity<Response> updateBooking(@Valid @RequestParam(name = "id") UUID id, @Valid @RequestParam(name = "status") BookingStatus status) {
+        BookingRecord bookingRecord = new BookingRecord(id,null,null,null,null,null,status,null);
+        bookingRecord = (BookingRecord) bookingService.updateUserBookingForAdmin(bookingRecord);
 
         if (bookingRecord == null) {       //If resource was not found
             return ResponseEntity.of(Optional.of(Response.builder()

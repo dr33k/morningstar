@@ -33,10 +33,7 @@ public class Voyage {
     private Location arrivalLocation;
 
     @Column(nullable = false)
-    private LocalDate travelDate;
-
-    @Column(nullable = false)
-    private LocalTime travelTime;
+    private LocalDateTime travelDate;
 
     @Column(nullable = true)
     private LocalDateTime arrivalDateTime;

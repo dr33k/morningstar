@@ -15,7 +15,7 @@ public record BookingRecord(
         UUID voyageNo,
         String passengerEmail,
         LocalDateTime bookingDate,
-        LocalDate expiryDate,
+        LocalDateTime expiryDate,
         SeatType seatType,
         BookingStatus status,
         String message

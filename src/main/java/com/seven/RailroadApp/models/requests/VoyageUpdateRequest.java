@@ -14,5 +14,4 @@ import java.util.UUID;
 public class VoyageUpdateRequest {
     private UUID voyageNo;
     private VoyageStatus status;
-    private LocalDateTime arrivalDateTime;
 }

@@ -2,6 +2,7 @@ package com.seven.RailroadApp.controllers;
 
 import com.seven.RailroadApp.config.security.UserAuthentication;
 import com.seven.RailroadApp.models.entities.User;
+import com.seven.RailroadApp.models.enums.BookingStatus;
 import com.seven.RailroadApp.models.records.BookingRecord;
 import com.seven.RailroadApp.models.requests.BookingCreateRequest;
 import com.seven.RailroadApp.models.requests.BookingUpdateRequest;
@@ -110,9 +111,9 @@ public class BookingController{
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Response> updateResource(@Valid @RequestBody BookingUpdateRequest request) {
+    public ResponseEntity<Response> updateResource(@Valid @RequestParam(name = "id") UUID id, @Valid @RequestParam(name = "status")BookingStatus status) {
         User sender = (User) userAuthentication.getInstance().getPrincipal();
-        BookingRecord bookingRecord = BookingRecord.copy(request);
+        BookingRecord bookingRecord = new BookingRecord(id,null,null,null,null,null,status,null);
         bookingRecord = (BookingRecord) bookingService.update(bookingRecord);
 
         if (bookingRecord == null) {       //If resource was not found

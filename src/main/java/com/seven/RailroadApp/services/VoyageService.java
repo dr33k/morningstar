@@ -94,7 +94,7 @@ public class VoyageService implements com.seven.RailroadApp.services.Service {
                 }
             }
         } catch (Exception ex) {
-            return new VoyageRecord(null, null, null, null, null, null, null,
+            return new VoyageRecord(null, null, null,  null, null, null,
                     "Voyage Record could be created, please try again later. Why? " + ex.getMessage());
         }
         return null;
@@ -115,15 +115,10 @@ public class VoyageService implements com.seven.RailroadApp.services.Service {
             if (voyageReturned.isPresent()) {
                 Voyage voyage = voyageReturned.get();
                 VoyageStatus status = voyage.getStatus();
-                LocalTime travelTime = voyage.getTravelTime();
-                LocalDate travelDate = voyage.getTravelDate();
+                LocalDateTime travelDate = voyage.getTravelDate();
 
                 if (propertiesToUpdate.travelDate() != null && propertiesToUpdate.travelDate().isAfter(travelDate) && status.equals(PENDING)) {
                     voyage.setTravelDate(propertiesToUpdate.travelDate());
-                    modified = true;
-                }
-                else if (propertiesToUpdate.travelTime() != null && propertiesToUpdate.travelTime().isAfter(travelTime) && status.equals(PENDING)) {
-                    voyage.setTravelTime(propertiesToUpdate.travelTime());
                     modified = true;
                 }
                 else if (propertiesToUpdate.status()!= null && propertiesToUpdate.status().equals(IN_TRANSIT) && !propertiesToUpdate.status().equals(status) && status.equals(PENDING)) {
@@ -144,7 +139,7 @@ public class VoyageService implements com.seven.RailroadApp.services.Service {
                     voyageRepository.save(voyage);
                     return VoyageRecord.copy(voyage);
                 }
-                else{return new VoyageRecord(null, null, null, null, null, null, null,
+                else{return new VoyageRecord( null, null, null, null, null, null,
                         "Voyage Record could be updated, Why? " +
                                 "* Please postpone travel date and time (if required) to values in the future" +
                                 "* IN_TRANSIT updates can only be processed when the voyage is PENDING" +
@@ -155,7 +150,7 @@ public class VoyageService implements com.seven.RailroadApp.services.Service {
                 }
             }
         } catch (Exception ex) {
-            return new VoyageRecord(null, null, null, null, null, null, null,
+            return new VoyageRecord( null, null, null, null, null, null,
                     "Voyage Record could be updated, please try again later. Why? " + ex.getMessage());
         }
         return null;

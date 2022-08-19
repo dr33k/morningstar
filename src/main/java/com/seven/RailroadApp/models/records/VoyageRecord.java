@@ -14,8 +14,8 @@ public record VoyageRecord(
         UUID voyageNo,
         LocationId departureLocationId,
         LocationId arrivalLocationId,
-        LocalDate travelDate,
-        LocalTime travelTime,
+        LocalDateTime travelDate,
+
         LocalDateTime arrivalDateTime,
         VoyageStatus status,
         String message
@@ -26,7 +26,6 @@ public record VoyageRecord(
                 b.getDepartureLocation().getLocationId(),
                 b.getArrivalLocation().getLocationId(),
                 b.getTravelDate(),
-                b.getTravelTime(),
                 b.getArrivalDateTime(),
                 b.getStatus(),
                 null
@@ -38,7 +37,6 @@ public record VoyageRecord(
                 b.getDepartureLocationId(),
                 b.getArrivalLocationId(),
                 b.getTravelDate(),
-                b.getTravelTime(),
                 null,
                 null,
                 null
@@ -51,7 +49,6 @@ public record VoyageRecord(
                 null,
                 null,
                 null,
-                b.getArrivalDateTime(),
                 b.getStatus(),
                 null
         );

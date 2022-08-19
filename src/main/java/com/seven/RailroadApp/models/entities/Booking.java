@@ -28,7 +28,7 @@ public class Booking {
     private LocalDateTime bookingDate;
 
     @Column(nullable = false)
-    private LocalDate expiryDate;
+    private LocalDateTime expiryDate;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
