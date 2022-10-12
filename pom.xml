@@ -9,14 +9,14 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.seven</groupId>
-    <artifactId>RailroadApp</artifactId>
+    <artifactId>railroadapp</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>RailroadApp</name>
+    <name>railroadapp</name>
     <description>Railroad Ticketing Application</description>
     <packaging>jar</packaging>
     <properties>
         <java.version>17</java.version>
-        <start-class>com.seven.RailroadApp.RailroadAppApplication</start-class>
+        <start-class>com.seven.railroadapp.RailroadAppApplication</start-class>
     </properties>
     <dependencies>
         <dependency>
@@ -70,11 +70,15 @@
             <artifactId>spring-boot-maven-plugin</artifactId>
             <version>2.7.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.paypal.sdk</groupId>
+            <artifactId>rest-api-sdk</artifactId>
+            <version>1.4.2</version>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -97,7 +101,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.seven.RailroadApp.RailroadAppApplication</mainClass>
+                            <mainClass>${start-class}</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
