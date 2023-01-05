@@ -24,8 +24,8 @@ public class Booking {
     private UUID voyageNo;
 
     @OneToOne
-    @JoinColumn(name = "passengerId", referencedColumnName = "id", table = "r_user")
-    private Long passenger;
+    @JoinColumn(name = "passenger", referencedColumnName = "id", table = "r_user")
+    private User passenger;
 
     @Column(nullable = false)
     private LocalDateTime bookingDateTime;

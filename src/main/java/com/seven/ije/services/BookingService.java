@@ -60,17 +60,19 @@ public class BookingService implements AppService <BookingRecord, AppRequest> {
                             "This reservation does not exist or has been deleted"));
         }
         else{
-            booking = bookingRepository.findByPassengerAndBookingNo(user.getId() , (UUID) bookingNo)
+            booking = bookingRepository.findByPassengerIdAndBookingNo(user.getId() , (UUID) bookingNo)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
                             "This reservation does not exist or has been deleted"));
         }
         return BookingRecord.copy(booking);
     }
 
-    public Set <BookingRecord> getAllByPassenger() {
+    public Set <BookingRecord> getAllByPassenger(String email) {
         User user = (User) userAuthentication.getPrincipal();
 
-        List <Booking> bookingList = bookingRepository.findAllByPassenger(user.getId());
+        List <Booking> bookingList = (email == null)? //Indicates user accessing their account
+                bookingRepository.findAllByPassengerId(user.getId()):
+                bookingRepository.findAllByPassengerEmail(user.getEmail());
 
         Set <BookingRecord> bookingRecords = bookingList.stream().map(BookingRecord::copy).collect(Collectors.toSet());
 
@@ -93,7 +95,7 @@ public class BookingService implements AppService <BookingRecord, AppRequest> {
             booking.setVoyageNo(voyageRecord.voyageNo());
             //Set Passenger
             User user = (User) userAuthentication.getPrincipal();
-            booking.setPassenger(user.getId());
+            booking.setPassenger(user);
             //Set booking status
             booking.setStatus(BookingStatus.VALID);
             //Set payment status
@@ -122,7 +124,7 @@ public class BookingService implements AppService <BookingRecord, AppRequest> {
                         "\n2) This reservation has already been deleted");
             }
         } else {
-            if (bookingRepository.deleteByPassengerAndBookingNoAndStatusNot(user.getId() , bookingNo , VALID.name()) == 0) {
+            if (bookingRepository.deleteByPassengerIdAndBookingNoAndStatusNot(user.getId() , bookingNo , VALID.name()) == 0) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "Delete could not be performed. Why?:" +
                         " \n 1) Please CANCEL first before deleting. " +
                         "\n2) This reservation has already been deleted");
@@ -161,7 +163,7 @@ public class BookingService implements AppService <BookingRecord, AppRequest> {
     public BookingRecord userUpdate(UUID bookingNo , Boolean cancel , Boolean isPaid) {
         User user = (User) userAuthentication.getPrincipal();
         //Retrieve indicated Booking Object from the Database
-        Booking booking = bookingRepository.findByPassengerAndBookingNo(user.getId() , bookingNo)
+        Booking booking = bookingRepository.findByPassengerIdAndBookingNo(user.getId() , bookingNo)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
                         "This reservation does not exist or has been deleted"));
 

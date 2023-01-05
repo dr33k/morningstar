@@ -40,7 +40,7 @@ public class BookingController {
 
     @GetMapping
     public ResponseEntity <Response> getAllResources() {
-        Set <BookingRecord> bookingRecords = bookingService.getAllByPassenger();
+        Set <BookingRecord> bookingRecords = bookingService.getAllByPassenger(null);
         return ResponseEntity.ok(Response.builder()
                 .data(bookingRecords)
                 .isError(false)

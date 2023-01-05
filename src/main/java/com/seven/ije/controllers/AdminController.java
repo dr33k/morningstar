@@ -6,6 +6,7 @@ import com.seven.ije.models.records.BookingRecord;
 import com.seven.ije.models.records.TicketRecord;
 import com.seven.ije.models.records.UserRecord;
 import com.seven.ije.models.requests.BookingUpdateRequest;
+import com.seven.ije.models.requests.UserUpdateRequest;
 import com.seven.ije.models.responses.Response;
 import com.seven.ije.services.BookingService;
 import com.seven.ije.services.TicketService;
@@ -35,9 +36,10 @@ public class AdminController {
 
     @Autowired
     BookingService bookingService;
+
     @GetMapping("/tickets")
-    public ResponseEntity<Response> getAllTickets() {
-        Set<TicketRecord> ticketRecords = ticketService.getAll();
+    public ResponseEntity <Response> getAllTickets() {
+        Set <TicketRecord> ticketRecords = ticketService.getAll();
         return ResponseEntity.ok(Response.builder()
                 .data(ticketRecords)
                 .isError(false)
@@ -47,7 +49,7 @@ public class AdminController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Response> getTicket(@RequestParam(name = "booking_no") UUID bookingNo) {
+    public ResponseEntity <Response> getTicket(@RequestParam(name = "booking_no") UUID bookingNo) {
         //Search for ticket
         TicketRecord tr = (TicketRecord) ticketService.getByBookingNo(bookingNo);
         if (tr == null) {       //If resource was not found
@@ -69,8 +71,8 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<Response> getAllUsers() {
-        Set<UserRecord> userRecords = userService.getAll();
+    public ResponseEntity <Response> getAllUsers() {
+        Set <UserRecord> userRecords = userService.getAll();
         return ResponseEntity.ok(Response.builder()
                 .data(userRecords)
                 .isError(false)
@@ -79,41 +81,33 @@ public class AdminController {
                 .build());
     }
 
-    @GetMapping("/users/search")
-    public ResponseEntity<Response> getUser(@Valid @RequestParam(name = "id")String id) {
-        UserRecord userRecord = (UserRecord) userService.get(id);
+    @GetMapping("/passengers/search")
+    public ResponseEntity <Response> getUser(@Valid @RequestParam(name = "email") String email) {
+        UserRecord userRecord = (UserRecord) userService.get(email); //Signifies admin access
 
-        if (userRecord == null) {       //If resource was not found
-           throw new ResourceAccessException("User "+id +" is not available. Make sure the user id was entered correctly");
-        } else {
-            return ResponseEntity.ok(Response.builder()
-                    .data(Set.of(userRecord))
-                    .isError(false)
-                    .status(HttpStatus.FOUND)
-                    .timestamp(LocalDateTime.now())
-                    .build());
-        }
+        return ResponseEntity.ok(Response.builder()
+                .data(Set.of(userRecord))
+                .isError(false)
+                .status(HttpStatus.FOUND)
+                .timestamp(LocalDateTime.now())
+                .build());
     }
 
-    @PutMapping("/update_user")
-    public ResponseEntity<Response> updateUserRole(@Valid @RequestParam(name = "id")String id,@Valid @RequestParam(name = "role") UserRole role) {
-        UserRecord userRecord = new UserRecord(null,null,null,id,null,null,null,role,null,null,null,null,null);
-        userRecord = (UserRecord) userService.updateUserRoleForAdmin(userRecord);
-        if (userRecord == null) {       //If resource was not found
-           throw new ResourceAccessException("User not found. Make sure the user id was entered correctly");
-        } else {
-            return ResponseEntity.ok(Response.builder()
-                    .data(Set.of(userRecord))
-                    .isError(false)
-                    .status(HttpStatus.OK)
-                    .timestamp(LocalDateTime.now())
-                    .build());
-        }
+    @PatchMapping("/passengers/update")
+    public ResponseEntity <Response> updateUserRole(@Valid @RequestBody UserUpdateRequest request) {
+        UserRecord userRecord = (UserRecord) userService.updateForAdmin(request);
+
+        return ResponseEntity.ok(Response.builder()
+                .data(Set.of(userRecord))
+                .isError(false)
+                .status(HttpStatus.OK)
+                .timestamp(LocalDateTime.now())
+                .build());
     }
 
     @GetMapping("/bookings")
-    public ResponseEntity<Response> getAllBookings() {
-        Set<BookingRecord> bookingRecords = bookingService.getAll();
+    public ResponseEntity <Response> getAllBookings() {
+        Set <BookingRecord> bookingRecords = bookingService.getAll();
         return ResponseEntity.ok(Response.builder()
                 .data(bookingRecords)
                 .isError(false)
@@ -123,47 +117,41 @@ public class AdminController {
     }
 
 
-    @GetMapping("/passenger_bookings")
-    public ResponseEntity<Response> getAllBookingsByPassenger(@RequestParam(name = "id") String id) {
-        UserRecord ur = (UserRecord) userService.get(id);
-        if (ur == null) {       //If resource was not found
-            throw new ResourceAccessException("User " + id + " is not available");
-        }else {
-            Set<BookingRecord> bookingRecords = bookingService.getAllByPassenger();
-            return ResponseEntity.ok(Response.builder()
-                    .data(bookingRecords)
-                    .isError(false)
-                    .status(HttpStatus.OK)
-                    .timestamp(LocalDateTime.now())
-                    .build());
-        }
-    }
+    @GetMapping("/passenger/bookings")
+    public ResponseEntity <Response> getAllBookingsByPassenger(@RequestParam(name = "email") String email) {
+        UserRecord ur = (UserRecord) userService.get(email);
 
-    @GetMapping("/bookings/search")
-    public ResponseEntity<Response> getBooking(@Valid @RequestParam(name = "id")String id) {
-        BookingRecord bookingRecord = (BookingRecord) bookingService.get(id);
-
-        if (bookingRecord == null) {       //If resource was not found
-            throw new ResourceAccessException("Booking " + id + " is not available");
-        } else {
-            return ResponseEntity.ok(Response.builder()
-                    .data(Set.of(bookingRecord))
-                    .isError(false)
-                    .status(HttpStatus.FOUND)
-                    .timestamp(LocalDateTime.now())
-                    .build());
-        }
-    }
-
-    @PatchMapping("/bookings/update")
-    public ResponseEntity <Response> updateUserBookingStatus(@Valid @RequestBody BookingUpdateRequest request) {
-        BookingRecord bookingRecord = bookingService.update(request);
+        Set <BookingRecord> bookingRecords = bookingService.getAllByPassenger(email);
         return ResponseEntity.ok(Response.builder()
-                .data(Set.of(bookingRecord))
+                .data(bookingRecords)
                 .isError(false)
                 .status(HttpStatus.OK)
                 .timestamp(LocalDateTime.now())
                 .build());
     }
 
+}
+
+@GetMapping("/bookings/search")
+public ResponseEntity<Response> getBooking(@Valid @RequestParam(name = "id") UUID id){
+        BookingRecord bookingRecord=(BookingRecord)bookingService.get(id);
+
+        return ResponseEntity.ok(Response.builder()
+        .data(Set.of(bookingRecord))
+        .isError(false)
+        .status(HttpStatus.OK)
+        .timestamp(LocalDateTime.now())
+        .build());
+        }
+
+@PatchMapping("/passenger/bookings/update")
+public ResponseEntity<Response> updateUserBookingStatus(@Valid @RequestBody BookingUpdateRequest request){
+        BookingRecord bookingRecord=bookingService.update(request);
+        return ResponseEntity.ok(Response.builder()
+        .data(Set.of(bookingRecord))
+        .isError(false)
+        .status(HttpStatus.OK)
+        .timestamp(LocalDateTime.now())
+        .build());
+        }
 }

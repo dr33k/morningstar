@@ -2,166 +2,180 @@ package com.seven.ije.services;
 
 import com.seven.ije.models.entities.User;
 import com.seven.ije.models.enums.UserRole;
-import com.seven.ije.models.exceptions.ResourceAlreadyExistsException;
 import com.seven.ije.models.records.UserRecord;
+import com.seven.ije.models.requests.AppRequest;
+import com.seven.ije.models.requests.UserCreateRequest;
+import com.seven.ije.models.requests.UserUpdateRequest;
 import com.seven.ije.repositories.UserRepository;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class UserService implements com.seven.ije.services.Service, UserDetailsService {
-    @Autowired
-    UserRepository userRepository;
-    @Autowired
-    BCryptPasswordEncoder passwordEncoder;
+public class UserService implements AppService <UserRecord, AppRequest>, UserDetailsService {
+    private UserRepository userRepository;
+    private BCryptPasswordEncoder passwordEncoder;
+    private Authentication userAuthentication;
 
+    public UserService(UserRepository userRepository ,
+                       BCryptPasswordEncoder passwordEncoder ,
+                       Authentication userAuthentication) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.userAuthentication = userAuthentication;
+    }
+
+    //For Admin
     @Override
-    public Set<UserRecord> getAll() {
-        Set<UserRecord> userRecords = new HashSet<>(0);
-        List<User> userList = userRepository.findAll();
-        for (User user : userList) {
-            UserRecord userRecord = UserRecord.copy(user);
-            userRecords.add(userRecord);
-        }
+    public Set <UserRecord> getAll() {
+        List <User> userList = userRepository.findAll();
+
+        Set <UserRecord> userRecords =
+                userList.stream().map(UserRecord::copy).collect(Collectors.toSet());
+
         return userRecords;
     }
 
+    //For Both
     @Override
-    public Record get(Object id) {
+    public UserRecord get(Object email) {
+        User user = (User) userAuthentication.getPrincipal();
+
+        User userFromDb;
+        if (email == null) { //Signifies account owner access.
+            userFromDb = userRepository.findById(user.getId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
+                            "This user does not exist or has been deleted"));
+        } else {  // Signifies admin access. Admin can fetch any user without restrictions
+            userFromDb = userRepository.findByEmail(email.toString())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
+                            "This user does not exist or has been deleted"));
+        }
+        return UserRecord.copy(user);
+    }
+
+    @Override
+    public UserRecord create(AppRequest request) {
         try {
-            String userId = (String) id;
-            Optional<User> userReturned = userRepository.findByEmail(userId);
-            /*If a value is present, map returns an Optional describing the result of applying
-             the given mapping function to the value, otherwise returns an empty Optional.
-            If the mapping function returns a null result then this method returns an empty Optional.
-             */
-            return userReturned.map(UserRecord::copy).orElse(null);
+            UserCreateRequest userCreateRequest = (UserCreateRequest) request;
+
+            if (userRepository.existsByEmail(userCreateRequest.getEmail()))
+                throw new ResponseStatusException(HttpStatus.CONFLICT , "A user with this email already exists");
+
+            User user = new User();
+            BeanUtils.copyProperties(userCreateRequest , user);
+
+            //Set role
+            user.setRole(UserRole.PASSENGER);
+            //Set date of registration
+            user.setDateReg(LocalDateTime.now());
+            //Encode password
+            user.setPassword(passwordEncoder.encode(userCreateRequest.getPassword()));
+            //Save
+            userRepository.save(user);
+
+            return UserRecord.copy(user);
         } catch (Exception ex) {
-           throw new RuntimeException("User not found, please make sure search credentials are entered properly. Possibly: " + ex.getMessage()
-           );
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR ,
+                    "User could not be created, please try again later. Why? " + ex.getMessage());
         }
     }
 
+    //For User
     @Override
-    public Record create(Record recordObject) {
-        try {//Cast into UserRecord
-            UserRecord userRecord = (UserRecord) recordObject;
+    public void delete(Object id) {//Only the user can deactivate their account
+        User user = (User) userAuthentication.getPrincipal();
+        if (!user.getId().equals((Long) id)) throw new ResponseStatusException(HttpStatus.FORBIDDEN , "Account Breach");
 
-            Optional<User> userReturned = userRepository.findByEmail(userRecord.email());
-
-            if (userReturned.isEmpty()) {
-                User user = new User();
-                BeanUtils.copyProperties(userRecord, user);
-
-                //Set role
-                user.setRole(UserRole.PASSENGER);
-                //Set date of registration
-                user.setDateReg(LocalDateTime.now());
-                user.setPassword(passwordEncoder.encode(userRecord.password()));
-
-                //Save
-                userRepository.save(user);
-                return UserRecord.copy(user);
-            }
-            throw new ResourceAlreadyExistsException(userRecord.message()); //If no user was returned from the database
-        } catch (Exception ex) {
-            throw new RuntimeException("User could be created, please try again later. Why? " + ex.getMessage());
-        }
+        userRepository.deleteById((Long) id);
     }
 
+    //For User
     @Override
-    public Boolean delete(Object id) {
+    public UserRecord update(AppRequest request) {
         try {
-            String email = (String) id;
-            Optional<User> uOpt = userRepository.findByEmail(email);
-            if (uOpt.isPresent()) {
-                userRepository.deleteByEmail(email);
-                return true;
+            //Retrieve indicated User object from the Authentication principal
+            User user = (User) userAuthentication.getPrincipal();
+            UserUpdateRequest userUpdateRequest = (UserUpdateRequest) request;
+
+            if (!userRepository.existsByEmail(user.getEmail()))
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND , "User account could not be found");
+
+            Boolean modified = false;
+
+            //If the property is not null
+            if (userUpdateRequest.getFirstName() != null) {
+                user.setFirstName(userUpdateRequest.getFirstName());
+                modified = (modified) ? modified : true;
             }
-        } catch (Exception ex) {
-            return false;
-        }
-        return false;
-    }
-    @Override
-    public Record update(Record recordObject) {
-        UserRecord ur = (UserRecord) recordObject;
-        try {//Retrieve indicated User Object from the Database
-            Optional<User> userReturned = userRepository.findByEmail(ur.email());
-
-            if (userReturned.isPresent()) {
-                User user = userReturned.get();
-                Boolean modified = false;
-
-                //If the property is not null and is a different value from before
-                if (ur.firstName() != null && !ur.firstName().equals(user.getFirstName())) {
-                    user.setFirstName(ur.firstName());
-                    modified = (modified) ? modified : true;
-                } else if (ur.lastName() != null && !ur.lastName().equals(user.getLastName())) {
-                    user.setLastName(ur.lastName());
-                    modified = (modified) ? modified : true;
-                } else if (ur.password() != null && !ur.password().equals(user.getPassword())) {
-                    user.setPassword(ur.password());
-                    modified = (modified) ? modified : true;
-                } else if (ur.phoneNo() != null && !ur.phoneNo().equals(user.getPhoneNo())) {
-                    user.setPhoneNo(ur.phoneNo());
-                    modified = (modified) ? modified : true;
-                } else if (ur.dateBirth()!= null && !ur.dateBirth().equals(user.getDateBirth())) {
-                    user.setDateBirth(ur.dateBirth());
-                    modified = (modified) ? modified : true;
-                }
+            if (userUpdateRequest.getLastName() != null) {
+                user.setLastName(userUpdateRequest.getLastName());
+                modified = (modified) ? modified : true;
+            }
+            if (userUpdateRequest.getPassword() != null) {
+                user.setPassword(userUpdateRequest.getPassword());
+                modified = (modified) ? modified : true;
+            }
+            if (userUpdateRequest.getPhoneNo() != null) {
+                user.setPhoneNo(userUpdateRequest.getPhoneNo());
+                modified = (modified) ? modified : true;
+            }
+            if (userUpdateRequest.getDateBirth() != null) {
+                user.setDateBirth(userUpdateRequest.getDateBirth());
+                modified = (modified) ? modified : true;
+            }
             if (modified) {
                 userRepository.save(user);
                 return UserRecord.copy(user);
             }
+        } catch (Exception ex) {
+            throw new RuntimeException("User could not be modified, please contact System Administrator. Why? " + ex.getMessage());
         }
-    } catch(   Exception ex)
-    {
-       throw new RuntimeException("User could not be modified, please try again. Why? " + ex.getMessage());
+        return null;
     }
-        return null;
-}
 
-    public Record updateUserRoleForAdmin(Record recordObject) {
-        UserRecord ur = (UserRecord) recordObject;
-        try {//Retrieve indicated User Object from the Database
-            Optional<User> userReturned = userRepository.findByEmail(ur.email());
+    //For Admin
+    public UserRecord updateForAdmin(AppRequest request) {
+        try {
+            UserUpdateRequest userUpdateRequest = (UserUpdateRequest) request;
 
-            if (userReturned.isPresent()) {
-                User user = userReturned.get();
-                Boolean modified = false;
+            //Retrieve indicated User Object from the Database
+            User userReturned = userRepository.findByEmail(userUpdateRequest.getEmail())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
+                            "This user does not exist or has been deleted"));
 
-                //If the property is not null and is a different value from before
-                if (ur.role() != null && !ur.role().equals(user.getRole())) {
-                    user.setRole(ur.role());
-                    modified = (modified) ? modified : true;
-                }
-                if (modified) {
-                    userRepository.save(user);
-                    return UserRecord.copy(user);
-                }
+            Boolean modified = false;
+
+            //If the property is not null
+            if (userUpdateRequest.getRole() != null) {//Upgrade or downgrade user role
+                userReturned.setRole(userUpdateRequest.getRole());
+                modified = true;
             }
-        } catch(   Exception ex)
-        {throw new RuntimeException("User could not be modified, please try again. Why? " + ex.getMessage());
+            if (modified) {
+                userRepository.save(userReturned);
+            }
+            return UserRecord.copy(userReturned);
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR ,
+                    "User could not be modified, please contact System Aministrator. Why? " + ex.getMessage());
         }
-        return null;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return  userRepository.findByEmail(username).orElseThrow(()->new UsernameNotFoundException("Username not found"));
+        return userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Username not found"));
     }
 }

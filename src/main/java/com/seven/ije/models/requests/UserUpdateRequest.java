@@ -1,6 +1,7 @@
 package com.seven.ije.models.requests;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.seven.ije.models.enums.UserRole;
 import lombok.Data;
 import org.springframework.validation.annotation.Validated;
 
@@ -25,6 +26,7 @@ public class UserUpdateRequest implements AppRequest {
     String password;
     @Past(message = "Future and current dates not allowed")
     LocalDate dateBirth;
+    UserRole role;
     Boolean isAccountNonExpired;
     Boolean isAccountNonLocked;
     Boolean isCredentialsNonExpired;
