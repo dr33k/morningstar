@@ -11,7 +11,7 @@ import java.util.UUID;
 @Validated
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class BookingUpdateRequest {
+public class BookingUpdateRequest implements AppRequest{
     private UUID bookingNo;
     @NotBlank(message = "Required field",groups = BookingStatus.class)
     private BookingStatus status;

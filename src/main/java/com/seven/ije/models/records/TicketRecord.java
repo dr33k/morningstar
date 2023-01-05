@@ -7,11 +7,13 @@ import java.util.UUID;
 
 public record TicketRecord(
         UUID bookingNo,
+        LocalDateTime creationDate,
         LocalDateTime expiryDate
 ) {
     public static TicketRecord copy(Ticket t){
         return new TicketRecord(
                 t.getBooking().getBookingNo(),
+                t.getCreationDateTime(),
                 t.getExpiryDateTime()
         );
     }

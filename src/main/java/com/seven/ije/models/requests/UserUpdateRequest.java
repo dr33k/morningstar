@@ -1,6 +1,7 @@
 package com.seven.ije.models.requests;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.seven.ije.models.enums.UserRole;
 import lombok.Data;
 import org.springframework.validation.annotation.Validated;
 
@@ -12,7 +13,7 @@ import java.time.LocalDate;
 @Validated
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class UserUpdateRequest {
+public class UserUpdateRequest implements AppRequest {
     @Pattern(regexp = "^[A-Za-z'\\-]{2,30}",message = "Name must be at least 2 characters long")
     String firstName;
     @Pattern(regexp = "^[A-Za-z'\\-]{2,30}",message = "Name must be at least 2 characters long")
@@ -25,6 +26,7 @@ public class UserUpdateRequest {
     String password;
     @Past(message = "Future and current dates not allowed")
     LocalDate dateBirth;
+    UserRole role;
     Boolean isAccountNonExpired;
     Boolean isAccountNonLocked;
     Boolean isCredentialsNonExpired;

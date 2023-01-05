@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity(name="r_user")
 @Table(name="r_user")
@@ -63,8 +64,7 @@ public class User implements Serializable, UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         SimpleGrantedAuthority sga = new SimpleGrantedAuthority("ROLE_"+this.role.name().toUpperCase());
-        Set<SimpleGrantedAuthority> authorities = Set.of(sga);
-        return authorities;
+        return Set.of(sga);
     }
     @Override
     public String getUsername() {

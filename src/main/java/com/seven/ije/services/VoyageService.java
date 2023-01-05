@@ -6,11 +6,14 @@ import com.seven.ije.models.enums.LocationStatus;
 import com.seven.ije.models.enums.VoyageStatus;
 import com.seven.ije.models.records.LocationRecord;
 import com.seven.ije.models.records.VoyageRecord;
+import com.seven.ije.models.requests.AppRequest;
 import com.seven.ije.repositories.VoyageRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -19,7 +22,7 @@ import static com.seven.ije.models.enums.LocationStatus.*;
 
 @Service
 @Transactional
-public class VoyageService implements com.seven.ije.services.Service {
+public class VoyageService implements AppService<VoyageRecord, AppRequest> {
     @Autowired
     private VoyageRepository voyageRepository;
 
@@ -38,27 +41,13 @@ public class VoyageService implements com.seven.ije.services.Service {
     }
 
     @Override
-    public Record get(Object id) {
-        try {
-            Optional<Voyage> voyageReturned = voyageRepository.findById((UUID) id);
-            /*If a value is present, map returns an Optional describing the result of applying
-             the given mapping function to the value, otherwise returns an empty Optional.
-            If the mapping function returns a null result then this method returns an empty Optional.
-             */
-            return voyageReturned.map(VoyageRecord::copy).orElse(null);
-        } catch (Exception ex) {
-            throw new RuntimeException("Voyage not found, please make sure details are entered correctly");
-        }
+    public VoyageRecord get(Object id) {
+            Voyage voyage =  voyageRepository.findById((UUID) id).
+                    orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "This voyage does not exist or has been removed"));
+            return VoyageRecord.copy(voyage);
     }
 
-    public Voyage getVoyageEntity(Object id) {
-        try {
-            Optional<Voyage> voyageReturned = voyageRepository.findById((UUID) id);
-            return voyageReturned.orElse(null);
-        } catch (Exception ex) {
-            throw new RuntimeException("Voyage not found, please make sure details are entered correctly");
-        }
-    }
     @Override
     public Record create(Record recordObject) {
         try {

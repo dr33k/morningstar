@@ -1,202 +1,179 @@
 package com.seven.ije.services;
 
-import com.seven.ije.config.security.UserAuthentication;
 import com.seven.ije.models.entities.*;
 import com.seven.ije.models.enums.BookingStatus;
+import com.seven.ije.models.enums.UserRole;
 import com.seven.ije.models.enums.VoyageStatus;
 import com.seven.ije.models.records.BookingRecord;
+import com.seven.ije.models.records.VoyageRecord;
+import com.seven.ije.models.requests.AppRequest;
+import com.seven.ije.models.requests.BookingCreateRequest;
+import com.seven.ije.models.requests.BookingUpdateRequest;
 import com.seven.ije.repositories.BookingRepository;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.web.context.annotation.ApplicationScope;
+import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
+
 import static com.seven.ije.models.enums.BookingStatus.*;
+
 @Service
 @Transactional
-public class BookingService implements com.seven.ije.services.Service {
-    @Autowired
+@ApplicationScope
+public class BookingService implements AppService <BookingRecord, AppRequest> {
     private BookingRepository bookingRepository;
-    @Autowired
     private VoyageService voyageService;
-    @Autowired
-    private UserAuthentication userAuthentication;
+    private Authentication userAuthentication;
 
+    public BookingService(BookingRepository bookingRepository ,
+                          VoyageService voyageService ,
+                          Authentication userAuthentication ) {
+        this.bookingRepository = bookingRepository;
+        this.voyageService = voyageService;
+        this.userAuthentication = userAuthentication;
+    }
+
+    //Used by Admin
     @Override
-    public Set<BookingRecord> getAll() {
-        Set<BookingRecord> bookingRecords = new HashSet<>(0);
-        List<Booking> bookingList = bookingRepository.findAll();
-        for (Booking booking : bookingList) {
-            BookingRecord bookingRecord = BookingRecord.copy(booking);
-            bookingRecords.add(bookingRecord);
-        }
+    public Set <BookingRecord> getAll() {
+        List <Booking> bookingList = bookingRepository.findAll();
+
+        Set <BookingRecord> bookingRecords =
+                bookingList.stream().map(BookingRecord::copy).collect(Collectors.toSet());
+
         return bookingRecords;
     }
 
     @Override
-    public Record get(Object id) {
-        try {
-            Optional<Booking> bookingReturned = bookingRepository.findById((UUID) id);
-            /*If a value is present, map returns an Optional describing the result of applying
-             the given mapping function to the value, otherwise returns an empty Optional.
-            If the mapping function returns a null result then this method returns an empty Optional.
-             */
-            return bookingReturned.map(BookingRecord::copy).orElse(null);
-        } catch (Exception ex) {
-            throw new RuntimeException("Booking not found, please check the details entered and try again");
+    public BookingRecord get(Object bookingNo) {
+        User user = (User) userAuthentication.getPrincipal();
+
+        Booking booking;
+        if(user.getRole().equals(UserRole.ADMIN)) {
+            booking = bookingRepository.findById((UUID) bookingNo)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
+                            "This reservation does not exist or has been deleted"));
         }
+        else{
+            booking = bookingRepository.findByPassengerIdAndBookingNo(user.getId() , (UUID) bookingNo)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
+                            "This reservation does not exist or has been deleted"));
+        }
+        return BookingRecord.copy(booking);
     }
 
-    public Booking getBookingEntity(Object id) {
-        try {
-            Optional<Booking> bookingReturned = bookingRepository.findById((UUID) id);
-            return bookingReturned.orElse(null);
-        } catch (Exception ex) {
-            throw new RuntimeException("Booking not found, please check the details entered and try again");
-        }
-    }
+    public Set <BookingRecord> getAllByPassenger(String email) {
+        User user = (User) userAuthentication.getPrincipal();
 
-    public Set<BookingRecord> getAllByPassenger(String email){
-        Set<BookingRecord> bookingRecords = new HashSet<>(0);
-        List<Booking> bookingList = bookingRepository.findAllByPassengerEmail(email);
-        for (Booking booking : bookingList) {
-            BookingRecord bookingRecord = BookingRecord.copy(booking);
-            bookingRecords.add(bookingRecord);
-        }
+        List <Booking> bookingList = (email == null)? //Indicates user accessing their account
+                bookingRepository.findAllByPassengerId(user.getId()):
+                bookingRepository.findAllByPassengerEmail(user.getEmail());
+
+        Set <BookingRecord> bookingRecords = bookingList.stream().map(BookingRecord::copy).collect(Collectors.toSet());
+
         return bookingRecords;
     }
 
     @Override
-    public Record create(Record recordObject) {
+    public BookingRecord create(AppRequest request) {
         try {
-            BookingRecord bookingRecord = (BookingRecord) recordObject;
+            BookingCreateRequest bookingRequest = (BookingCreateRequest) request;
+
+            VoyageRecord voyageRecord = voyageService.get(bookingRequest.getVoyageNo());
+
+            if (!voyageRecord.status().equals(VoyageStatus.PENDING))
+                throw new ResponseStatusException(HttpStatus.CONFLICT ,
+                        "This voyage has already begun or has been completed. It cannot be reserved.");
 
             Booking booking = new Booking();
-            BeanUtils.copyProperties(bookingRecord, booking);
+            //Set Voyage
+            booking.setVoyageNo(voyageRecord.voyageNo());
+            //Set Passenger
+            User user = (User) userAuthentication.getPrincipal();
+            booking.setPassenger(user);
+            //Set booking status
+            booking.setStatus(BookingStatus.VALID);
+            //Set payment status
+            booking.setIsPaid(false);
+            //Set booking date
+            booking.setBookingDateTime(LocalDateTime.now());
+            //Save
+            bookingRepository.save(booking);
 
-            Voyage voyage = voyageService.getVoyageEntity(bookingRecord.voyageNo());
-
-            if (voyage != null) {
-                if(!voyage.getStatus().equals(VoyageStatus.PENDING)) throw new RuntimeException("This voyage has already begun or has been completed. It cannot be reserved.");
-                //Set Voyage
-                booking.setVoyage(voyage);
-                //Set Passenger
-                User user = (User) userAuthentication.getInstance().getPrincipal();
-                booking.setPassenger(user);
-                //Set booking status
-                booking.setStatus(BookingStatus.VALID);
-                //Set booking no
-                booking.setBookingNo(UUID.randomUUID());
-                //Set payment status
-                booking.setIsPaid(false);
-                //Set booking date
-                booking.setBookingDateTime(LocalDateTime.now());
-                //Save
-                bookingRepository.save(booking);
-
-                return BookingRecord.copy(booking);
-            }
+            return BookingRecord.copy(booking);
         } catch (Exception ex) {
-            throw new RuntimeException("Reservation could be created, please try again later. Why? " + ex.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR ,
+                    "Reservation could not be created,please contact System Administrator. Why? " + ex.getMessage());
         }
-        return null;
     }
 
     @Override
-    public Boolean delete(Object id) {
+    public void delete(Object id) {
+        UUID bookingNo = (UUID) id;
+        User user = (User) userAuthentication.getPrincipal();
+
+        if(user.getRole().equals(UserRole.ADMIN)) {
+            if (bookingRepository.deleteByBookingNoAndStatusNot(bookingNo , VALID.name()) == 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "Delete could not be performed. Why?:" +
+                        " \n 1) Please CANCEL first before deleting. " +
+                        "\n2) This reservation has already been deleted");
+            }
+        } else {
+            if (bookingRepository.deleteByPassengerIdAndBookingNoAndStatusNot(user.getId() , bookingNo , VALID.name()) == 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "Delete could not be performed. Why?:" +
+                        " \n 1) Please CANCEL first before deleting. " +
+                        "\n2) This reservation has already been deleted");
+            }
+        }
+    }
+
+    //For Admin
+    @Override
+    public BookingRecord update(AppRequest request) {
         try {
-            UUID bookingNo = (UUID) id;
-            Optional<Booking> bOpt = bookingRepository.findById(bookingNo);
-            if (bOpt.isPresent()) {
-                Booking booking = bOpt.get();
-                if (booking.getStatus().name().equals("CANCELLED")) {
-                    bookingRepository.deleteById(bookingNo);
-                    return true;
-                }
-            }
+            BookingUpdateRequest newProperties = (BookingUpdateRequest) request;
+            User user = (User) userAuthentication.getPrincipal();
+
+            Booking booking = bookingRepository.findById(newProperties.getBookingNo())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
+                            "This reservation does not exist or has been deleted"));
+
+            BookingStatus status = booking.getStatus();
+
+            if (status.equals(EXPIRED) || status.equals(USED))
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "This reservation has been used or is expired.");
+            if (newProperties.getStatus().equals(status))
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "Please update with a different value");
+
+            booking.setStatus(newProperties.getStatus());
+            bookingRepository.save(booking);
+            return BookingRecord.copy(booking);
+
         } catch (Exception ex) {
-            return false;
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR ,
+                    "Reservation could not be updated, please contact System Administrator. Why? " + ex.getMessage());
         }
-        return false;
     }
+    //For User
+    public BookingRecord userUpdate(UUID bookingNo , Boolean cancel , Boolean isPaid) {
+        User user = (User) userAuthentication.getPrincipal();
+        //Retrieve indicated Booking Object from the Database
+        Booking booking = bookingRepository.findByPassengerIdAndBookingNo(user.getId() , bookingNo)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
+                        "This reservation does not exist or has been deleted"));
 
-    @Override
-    public Record update(Record recordObject) {
-        boolean modified = false;
-        try {//Retrieve indicated Booking Object from the Database
-            BookingRecord propertiesToUpdate = (BookingRecord) recordObject;
-            Optional<Booking> bookingReturned = bookingRepository.findById(propertiesToUpdate.bookingNo());
-
-            if (bookingReturned.isPresent()) {
-                Booking booking = bookingReturned.get();
-                BookingStatus status = booking.getStatus();
-
-                if (propertiesToUpdate.status().equals(CANCELLED) && !propertiesToUpdate.status().equals(status) ) {
-                      booking.setStatus(CANCELLED);
-                      modified = true;
-                }
-                if (modified) {
-                    bookingRepository.save(booking);
-                    return BookingRecord.copy(booking);
-                } else {
-                    return new BookingRecord(null, null, null, null,  null,null,null,
-                            "Reservation: " + booking.getBookingNo() + " could be updated, please check your values" +
-                                    " and dont update with the same information as before");
-                }
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException("Booking Record could not be updated, please try again later. Why? " + ex.getMessage());
+        if (cancel) {
+            booking.setStatus(CANCELLED);
+            bookingRepository.save(booking);
+        } else if (isPaid) {
+            booking.setIsPaid(true);
+            bookingRepository.save(booking);
         }
-        return null;
-    }
-    public Record updateUserBookingForAdmin(Record recordObject)  {
-        boolean modified = false;
-        try {//Retrieve indicated Booking Object from the Database
-            BookingRecord propertiesToUpdate = (BookingRecord) recordObject;
-            Optional<Booking> bookingReturned = bookingRepository.findById(propertiesToUpdate.bookingNo());
-
-            if (bookingReturned.isPresent()) {
-                Booking booking = bookingReturned.get();
-                BookingStatus status = booking.getStatus();
-
-                if (propertiesToUpdate.status().equals(CANCELLED) && !propertiesToUpdate.status().equals(status)) {
-                    booking.setStatus(CANCELLED);
-                    modified = true;
-                }
-                else if (propertiesToUpdate.status().equals(USED) && !propertiesToUpdate.status().equals(status) && status.equals(VALID)) {
-                    booking.setStatus(USED);
-                    modified = true;
-                    }
-
-                if (modified) {
-                    bookingRepository.save(booking);
-                    return BookingRecord.copy(booking);
-                } else {
-                    return new BookingRecord(null, null, null, null, null,null,null,
-                            "Reservation: " + booking.getBookingNo() + " could not be updated, please check your values" +
-                                    " and dont update with the same information as before");
-                }
-            }
-        } catch (Exception ex) {
-           throw new RuntimeException("Booking Record could be updated, please try again later. Why? " + ex.getMessage());
-        }
-        return null;
-    }
-
-    //Returns true if the payment status was updated (to true or false)
-    //Otherwise it returns false (most likely if the booking was not found)
-    public Boolean updateIsPaid(UUID bookingNo, Boolean isPaid) {
-        try {//Retrieve indicated Booking Object from the Database
-            Optional<Booking> bookingReturned = bookingRepository.findById(bookingNo);
-            if (bookingReturned.isPresent()) {
-                Booking booking = bookingReturned.get();
-                booking.setIsPaid(isPaid);
-                bookingRepository.save(booking);
-                return true;
-            }
-        }catch (Exception e){throw new RuntimeException(e.getMessage());}
-        return false;
+        return BookingRecord.copy(booking);
     }
 }

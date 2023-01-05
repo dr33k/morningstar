@@ -28,17 +28,17 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
 
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET,"/", "/register/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/register/**").permitAll()
                 .antMatchers("/administrator/**").hasRole("ADMIN")
                 .antMatchers("/user/**", "/booking/**", "/ticket/**","/payment/**").hasAnyRole("ADMIN", "PASSENGER", "OFFICER")
-                .antMatchers(HttpMethod.GET,"/dashboard/**","/locationDetails/**","/voyageDetails/**").hasAnyRole("ADMIN","PaSSENGER","OFFICER")
+                .antMatchers(HttpMethod.GET,"/dashboard/**","/locationDetails/**","/voyageDetails/**").hasAnyRole("ADMIN","PASSENGER","OFFICER")
                 .anyRequest().authenticated()
 
                 .and()
                 .formLogin()
-                .loginPage("/login").permitAll()
-                .failureUrl("/login")
-                .defaultSuccessUrl("/swagger-ui.html", true)
+//                .loginPage("/login").permitAll()
+//                .failureUrl("/login")
+                .defaultSuccessUrl("/dashboard", true)
 
                 .and()
                 .rememberMe()

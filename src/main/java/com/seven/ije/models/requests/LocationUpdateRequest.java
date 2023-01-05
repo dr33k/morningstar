@@ -9,7 +9,7 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class LocationUpdateRequest {
+public class LocationUpdateRequest implements AppRequest {
     private LocationId locationId;
     private String stationName;
     private LocationStatus status;

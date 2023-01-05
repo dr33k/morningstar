@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <title>Payment Cancelled</title>
 </head>
 <body>
 <h1>Payment Failure</h1>
+<p>Message: <span th:text="${message}"></span></p>
+<p>Booking No: <span th:text="${bookingNo}"></span></p>
 </body>
 </html>

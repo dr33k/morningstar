@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Validated
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class VoyageCreateRequest {
+public class VoyageCreateRequest implements AppRequest {
     private LocationId departureLocationId;
     private LocationId arrivalLocationId;
     @Future(message = "Past and current dates not allowed")
