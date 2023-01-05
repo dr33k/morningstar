@@ -5,6 +5,8 @@ import com.seven.ije.models.enums.SeatType;
 import lombok.Data;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -20,11 +22,12 @@ public class Booking {
     private UUID bookingNo;
 
     @ManyToOne
-    @JoinColumn(name = "voyageNo", referencedColumnName = "voyageNo", table="voyage")
+    @Column(name = "voyageNo")
     private UUID voyageNo;
 
     @OneToOne
     @JoinColumn(name = "passenger", referencedColumnName = "id", table = "r_user")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User passenger;
 
     @Column(nullable = false)

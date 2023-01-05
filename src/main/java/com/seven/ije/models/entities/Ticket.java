@@ -2,6 +2,9 @@ package com.seven.ije.models.entities;
 
 import lombok.Data;
 import lombok.ToString;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -19,7 +22,11 @@ public class Ticket {
 
     @OneToOne
     @JoinColumn(name="bookingNo",referencedColumnName="bookingNo",table = "booking")
-    private UUID bookingNo;
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Booking booking;
+
+    @Column(nullable = false)
+    private LocalDateTime creationDateTime;
 
     @Column(nullable = false)
     private LocalDateTime expiryDateTime;

@@ -13,11 +13,13 @@ import com.seven.ije.services.PaymentService;
 import com.seven.ije.services.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.context.annotation.ApplicationScope;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 
 import static com.seven.ije.models.enums.PaymentMethod.*;
@@ -51,7 +53,8 @@ public class PaymentController {
     @GetMapping
     public ModelAndView payment_landing(@ModelAttribute("displayWarning") String displayWarning, BindingResult bindingResult, ModelMap modelMap) {
         //displayWarnings are just in case there is no approval_url after creating payment. It redirects here
-        if(bindingResult.hasErrors()){throw new PaymentException("[GET: /payment] BindingResult has errors" + bindingResult.getAllErrors().stream().findFirst().get());}
+        if(bindingResult.hasErrors()){throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "[GET: /payment] BindingResult has errors" + bindingResult.getAllErrors().stream().findFirst().get());}
 
         this.order = Order.builder()
                     .price(paymentService.getPrice(Map.of(reservationDetails.seatType().toString(), 1)))
@@ -81,7 +84,8 @@ public class PaymentController {
             modelMap.put("displayWarning","Apparently there were  no approval urls from your payments. You should look into that");
             return "redirect:/payment";
         }
-        catch(PayPalRESTException e){throw new PaymentException("[POST: /payment/pay ] "+e.getMessage());}
+        catch(PayPalRESTException e){throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "[POST: /payment/pay ] "+e.getMessage(),e);}
     }
 
     @GetMapping(SUCCESS_URL)
@@ -91,14 +95,17 @@ public class PaymentController {
             System.out.println(payment.toJSON());
             if(payment.getState().equals("approved")){
                 //Create a Ticket Payment in the DB
+
                 //Create a Ticket in the DB
-                TicketRecord ticketRecord = ticketService.createWith(reservationDetails);
+                TicketRecord ticketRecord = ticketService.create();
                 return new ModelAndView("payment_success","ticketRecord",ticketRecord);
             }
 
-            throw new PaymentException(String.format("[GET: /payment%s] Payment Not Approved",SUCCESS_URL));
+            throw new ResponseStatusException(HttpStatus.PAYMENT_REQUIRED,
+                    String.format("[GET: /payment%s] Payment Not Approved",SUCCESS_URL));
         }
-        catch (PayPalRESTException e){throw new PaymentException(e.getMessage());}
+        catch (PayPalRESTException e){throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                String.format("[GET: /payment%s] Payment Not Approved. Why? %s",SUCCESS_URL,e.getMessage()), e);}
     }
 
     @GetMapping(CANCEL_URL)

@@ -21,7 +21,6 @@ public record BookingRecord(
     public BookingRecord() {
         this(null , null , null , null , null , null , null);
     }
-
     public static BookingRecord copy(Booking b) {
         return new BookingRecord(
                 b.getBookingNo() ,
@@ -61,5 +60,4 @@ public record BookingRecord(
     public String toString() {
         return this.bookingNo.toString();
     }
-
 }

@@ -18,6 +18,4 @@ public class TemplateController{
 
     @GetMapping("/voyageDetails")
     public String voyageDetails(){ return "voyage_details";}
-
-
 }
