@@ -6,14 +6,18 @@ import com.paypal.base.rest.PayPalRESTException;
 import com.seven.ije.models.entities.Booking;
 import com.seven.ije.models.entities.Order;
 import com.seven.ije.models.exceptions.PaymentException;
+import com.seven.ije.models.records.BookingRecord;
 import com.seven.ije.models.records.TicketRecord;
 import com.seven.ije.services.BookingService;
 import com.seven.ije.services.PaymentService;
 import com.seven.ije.services.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.context.annotation.ApplicationScope;
 import org.springframework.web.servlet.ModelAndView;
 
 import static com.seven.ije.models.enums.PaymentMethod.*;
@@ -24,8 +28,9 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/payment")
+@ApplicationScope
 public class PaymentController {
-    private static final String DOMAIN_URL = "http://localhost:8080/payment";
+    private static final String DOMAIN_URL = "http://127.0.0.1:8080/payment";
     private static final String SUCCESS_URL = "/success"; // The success url will carry the bookingNo as a request parameter
     private static final String CANCEL_URL = "/cancel"; //Likewise the cancel url
 
@@ -35,61 +40,65 @@ public class PaymentController {
     TicketService ticketService;
     @Autowired
     BookingService bookingService;
+    @Autowired
+    @Qualifier("reservationDetails")
+    BookingRecord reservationDetails;
+    private Order order;
 
-    @ModelAttribute("order")
-    public Order orderObj(){return new Order();}
+//    @ModelAttribute("order")
+//    public Order orderObj(){return new Order();}
 
     @GetMapping
-    public ModelAndView payment_landing(@ModelAttribute("bookingNo") UUID bookingNo, BindingResult bindingResult) {
-        if(bindingResult.hasErrors()) { throw new ResourceAccessException("Binding Result contained errors at the  /payment/ endpoint: "+bindingResult.getAllErrors().toString());}
+    public ModelAndView payment_landing(@ModelAttribute("displayWarning") String displayWarning, BindingResult bindingResult, ModelMap modelMap) {
+        //displayWarnings are just in case there is no approval_url after creating payment. It redirects here
+        if(bindingResult.hasErrors()){throw new PaymentException("[GET: /payment] BindingResult has errors" + bindingResult.getAllErrors().stream().findFirst().get());}
 
-            Booking booking = bookingService.getBookingEntity(bookingNo);
-            Order order = Order.builder()
-                    .price(paymentService.getPrice(Map.of(booking.getSeatType().toString(), 1)))
+        this.order = Order.builder()
+                    .price(paymentService.getPrice(Map.of(reservationDetails.seatType().toString(), 1)))
                     .currency(NGN.toString())
                     .method(PAYPAL.toString())
-                    .intent("Ticket for Booking: " + booking.getBookingNo())
-                    .description("Ticket for Voyage: " + booking.getVoyage().getVoyageNo())
-                    .booking(booking).build();
+                    .intent("Ticket for Booking: " + reservationDetails.bookingNo())
+                    .description("Ticket for Voyage: " + reservationDetails.voyageNo())
+                    .bookingRecord(reservationDetails).build();
 
-            return new ModelAndView("payment_landing","orderFromController", order);
+            modelMap.put("orderFromController", this.order);
+            modelMap.put("displayWarning", displayWarning);
+
+            return new ModelAndView("payment_landing","model", modelMap);
     }
 
     @PostMapping("/pay")
-    public String payment(@ModelAttribute("order")Order order, BindingResult bindingResult)throws PaymentException{
+    public String payment(ModelMap modelMap){
         try{
-            if(bindingResult.hasErrors())throw new ResourceAccessException("Binding Result contained errors at the  /tichetReservation/pay endpoint");
-            Payment payment = paymentService.createPayment(order.getPrice(), order.getCurrency(), order.getMethod(), order.getIntent(), order.getDescription(),
-                    (DOMAIN_URL+CANCEL_URL+"?bookingNo="+order.getBooking().getBookingNo()),
-                    (DOMAIN_URL+SUCCESS_URL+"?bookingNo="+order.getBooking().getBookingNo()));
+            Payment payment = paymentService.createPayment(this.order.getPrice(), this.order.getCurrency(), this.order.getMethod(), this.order.getIntent(), this.order.getDescription(),
+                    (DOMAIN_URL+CANCEL_URL+"?bookingNo="+order.getBookingRecord().bookingNo()),
+                    (DOMAIN_URL+SUCCESS_URL+"?bookingNo="+order.getBookingRecord().bookingNo()));
             for(Links link:payment.getLinks()){
                 if(link.getRel().equals("approval_url")){
                     return "redirect:"+link.getHref();
                 }
             }
+            modelMap.put("displayWarning","Apparently there were  no approval urls from your payments. You should look into that");
+            return "redirect:/payment";
         }
-        catch(PayPalRESTException e){throw new PaymentException(e);}
-        return "redirect:/payment";
+        catch(PayPalRESTException e){throw new PaymentException("[POST: /payment/pay ] "+e.getMessage());}
     }
 
     @GetMapping(SUCCESS_URL)
-    public ModelAndView paymentSuccess(@RequestParam("paymentId")String paymentId, @RequestParam("payerId")String payerId, @RequestParam("bookingNo") UUID bookingNo)throws PaymentException{
+    public ModelAndView paymentSuccess(@RequestParam("paymentId")String paymentId, @RequestParam("payerId")String payerId)throws PaymentException{
         try {
             Payment payment = paymentService.executePayment(paymentId, payerId);
             System.out.println(payment.toJSON());
             if(payment.getState().equals("approved")){
                 //Create a Ticket Payment in the DB
                 //Create a Ticket in the DB
-                TicketRecord ticketRecord = ticketService.createByBookingNo(bookingNo);
-                return new ModelAndView("payment_success","ticketRecord",ticketRecord);}
-            else{
-                ModelAndView mav = new ModelAndView("redirect:/payment");
-                mav.addObject("message","Payment Not Approved");
-                mav.addObject("bookingNo",bookingNo);
-                return mav;
+                TicketRecord ticketRecord = ticketService.createWith(reservationDetails);
+                return new ModelAndView("payment_success","ticketRecord",ticketRecord);
             }
+
+            throw new PaymentException(String.format("[GET: /payment%s] Payment Not Approved",SUCCESS_URL));
         }
-        catch (PayPalRESTException e){throw new PaymentException(e);}
+        catch (PayPalRESTException e){throw new PaymentException(e.getMessage());}
     }
 
     @GetMapping(CANCEL_URL)

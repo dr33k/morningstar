@@ -1,5 +1,6 @@
 package com.seven.ije.models.entities;
 
+import com.seven.ije.models.records.BookingRecord;
 import lombok.*;
 
 @Data
@@ -13,5 +14,5 @@ public class Order {//TicketPayment
     private String method;
     private String intent;
     private String description;
-    private Booking booking;
+    private BookingRecord bookingRecord;
 }

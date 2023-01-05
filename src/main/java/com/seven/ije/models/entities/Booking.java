@@ -4,6 +4,7 @@ import com.seven.ije.models.enums.BookingStatus;
 import com.seven.ije.models.enums.SeatType;
 import lombok.Data;
 import lombok.ToString;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -15,15 +16,16 @@ import java.util.UUID;
 @ToString
 public class Booking {
     @Id
+    @GenericGenerator(name="UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID bookingNo;
 
     @ManyToOne
-    @JoinColumn(name = "voyageNo", referencedColumnName = "voyageNo")
-    private Voyage voyage;
+    @JoinColumn(name = "voyageNo", referencedColumnName = "voyageNo", table="voyage")
+    private UUID voyageNo;
 
     @OneToOne
-    @JoinColumn(name = "passengerId", referencedColumnName = "id")
-    private User passenger;
+    @JoinColumn(name = "passengerId", referencedColumnName = "id", table = "r_user")
+    private Long passenger;
 
     @Column(nullable = false)
     private LocalDateTime bookingDateTime;

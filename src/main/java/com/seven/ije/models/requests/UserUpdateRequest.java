@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Validated
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class UserUpdateRequest {
+public class UserUpdateRequest implements AppRequest {
     @Pattern(regexp = "^[A-Za-z'\\-]{2,30}",message = "Name must be at least 2 characters long")
     String firstName;
     @Pattern(regexp = "^[A-Za-z'\\-]{2,30}",message = "Name must be at least 2 characters long")

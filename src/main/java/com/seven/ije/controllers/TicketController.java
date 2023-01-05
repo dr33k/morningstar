@@ -10,6 +10,7 @@ import com.seven.ije.services.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,11 +29,11 @@ public class TicketController {
     @Autowired
     BookingService bookingService;
     @Autowired
-    UserAuthentication userAuthentication;
+    Authentication userAuthentication;
     
     @GetMapping("/search")
     public ResponseEntity<Response> getResource(@RequestParam(name = "booking_no") UUID bookingNo){
-        User sender = (User) userAuthentication.getInstance().getPrincipal();
+        User sender = (User) userAuthentication.getPrincipal();
         BookingRecord bookingRecord = (BookingRecord) bookingService.get(bookingNo);
 
         if (bookingRecord == null) {       //If resource was not found

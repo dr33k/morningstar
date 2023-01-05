@@ -5,13 +5,16 @@ import com.seven.ije.models.enums.UserRole;
 import com.seven.ije.models.records.BookingRecord;
 import com.seven.ije.models.records.TicketRecord;
 import com.seven.ije.models.records.UserRecord;
+import com.seven.ije.models.requests.BookingUpdateRequest;
 import com.seven.ije.models.responses.Response;
 import com.seven.ije.services.BookingService;
 import com.seven.ije.services.TicketService;
 import com.seven.ije.services.UserService;
+import io.swagger.annotations.SecurityDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.config.web.servlet.SecurityMarker;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.ResourceAccessException;
 
@@ -32,7 +35,6 @@ public class AdminController {
 
     @Autowired
     BookingService bookingService;
-
     @GetMapping("/tickets")
     public ResponseEntity<Response> getAllTickets() {
         Set<TicketRecord> ticketRecords = ticketService.getAll();
@@ -120,13 +122,14 @@ public class AdminController {
                 .build());
     }
 
+
     @GetMapping("/passenger_bookings")
     public ResponseEntity<Response> getAllBookingsByPassenger(@RequestParam(name = "id") String id) {
         UserRecord ur = (UserRecord) userService.get(id);
         if (ur == null) {       //If resource was not found
             throw new ResourceAccessException("User " + id + " is not available");
         }else {
-            Set<BookingRecord> bookingRecords = bookingService.getAllByPassenger(id);
+            Set<BookingRecord> bookingRecords = bookingService.getAllByPassenger();
             return ResponseEntity.ok(Response.builder()
                     .data(bookingRecords)
                     .isError(false)
@@ -152,29 +155,15 @@ public class AdminController {
         }
     }
 
-    @PutMapping("/update_user_booking")
-    public ResponseEntity<Response> updateBooking(@Valid @RequestParam(name = "id") UUID id, @Valid @RequestParam(name = "status") BookingStatus status) {
-        BookingRecord bookingRecord = new BookingRecord(id,null,null,null,null,status,null,null);
-        bookingRecord = (BookingRecord) bookingService.updateUserBookingForAdmin(bookingRecord);
-
-        if (bookingRecord == null) {       //If resource was not found
-            throw new ResourceAccessException("Make sure the id was entered correctly");
-        } else if (!(bookingRecord.message() == null)) {   //If modification was unsuccessful
-            return ResponseEntity.of(Optional.of(Response.builder()
-                    .isError(true)
-                    .message(bookingRecord.message())
-                    .status(HttpStatus.NOT_MODIFIED)
-                    .timestamp(LocalDateTime.now())
-                    .build()));
-        } else {
-            return ResponseEntity.ok(Response.builder()
-                    .data(Set.of(bookingRecord))
-                    .isError(false)
-                    .status(HttpStatus.OK)
-                    .timestamp(LocalDateTime.now())
-                    .build());
-        }
+    @PatchMapping("/bookings/update")
+    public ResponseEntity <Response> updateUserBookingStatus(@Valid @RequestBody BookingUpdateRequest request) {
+        BookingRecord bookingRecord = bookingService.update(request);
+        return ResponseEntity.ok(Response.builder()
+                .data(Set.of(bookingRecord))
+                .isError(false)
+                .status(HttpStatus.OK)
+                .timestamp(LocalDateTime.now())
+                .build());
     }
-
 
 }

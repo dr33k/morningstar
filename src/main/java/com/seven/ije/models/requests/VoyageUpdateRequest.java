@@ -10,7 +10,7 @@ import java.util.UUID;
 @Validated
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class VoyageUpdateRequest {
+public class VoyageUpdateRequest implements AppRequest{
     private UUID voyageNo;
     private VoyageStatus status;
 }

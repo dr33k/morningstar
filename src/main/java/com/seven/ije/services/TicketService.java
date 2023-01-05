@@ -2,6 +2,8 @@ package com.seven.ije.services;
 
 import com.seven.ije.models.entities.Booking;
 import com.seven.ije.models.entities.Ticket;
+import com.seven.ije.models.exceptions.ArbitraryException;
+import com.seven.ije.models.records.BookingRecord;
 import com.seven.ije.models.records.TicketRecord;
 import com.seven.ije.repositories.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,26 +46,23 @@ public class TicketService {
         return false;
     }
 
-    public TicketRecord createByBookingNo(UUID bookingNo){
+    public TicketRecord createWith(BookingRecord reservationDetails){
         try {
-            Booking booking = bookingService.getBookingEntity(bookingNo);
-            if (booking != null){
-                //Change paid status to true
-                booking.setIsPaid(true);
+            if(reservationDetails == null) throw new ArbitraryException("This should not be happening. ReservationDetails is null");
+
                 //Create ticket
                 Ticket ticket = new Ticket();
                 //Set Booking
-                ticket.setBooking(booking);
+                ticket.setBookingNo(reservationDetails.bookingNo());
                 //Set Expiry Date
-                ticket.setExpiryDateTime((booking.getVoyage().getTravelDateTime().plusDays(1L)));
-                //Save Booking
-                bookingService.updateIsPaid(bookingNo,true);
+                ticket.setExpiryDateTime((reservationDetails.voyage().travelDateTime().plusDays(1L)));
+                //Save Booking and update reservationDetails
+                reservationDetails = bookingService.userUpdate(reservationDetails.bookingNo(),false, true);
                 //Save Ticket
                 ticketRepository.save(ticket);
                 return TicketRecord.copy(ticket);
-            }
+
         }catch(Exception e){throw new RuntimeException(e.getMessage());}
-        return null;
     }
     /*public Record update(Record recordObject) {
         try {

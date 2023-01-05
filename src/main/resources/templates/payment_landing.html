@@ -114,33 +114,32 @@ span.price {
 <div class="row">
     <div class="col-50">
         <div class="container">
-            <form method="post"  th:action="@{/payment/pay}" th:object="${order}">
+            <form method="post"  th:action="@{/payment/pay}">
                 <div class="col-50">
-
+                    <p th:text=${model.displayWarning}></p>
                     <p>
                     <h3>Booking No: </h3>
-                    <span th:text="${orderFromController.booking.bookingNo}"></span>
+                    <span th:text="${model.orderFromController.bookingRecord.bookingNo}"></span>
                     </p>
                     <p>
                     <h3>Voyage No: </h3>
-                    <span th:text="${orderFromController.booking.voyage.voyageNo}"></span>
+                    <span th:text="${model.orderFromController.bookingRecord.voyageNo}"></span>
                     </p>
                     <p>
                     <h3>Seat Type: </h3>
-                    <span th:text = ${orderFromController.booking.seatType.name()}"></span>
+                    <span th:text = ${model.orderFromController.bookingRecord.seatType.name()}"></span>
                     </p>
                     <p>
                     <h3>Created on: </h3>
-                    <span th:text = ${orderFromController.booking.bookingDateTime}"></span>
+                    <span th:text = ${model.orderFromController.bookingRecord.bookingDate}"></span>
                     </p>
 
-                    <input type="text" th:field="*{intent}" th:value="${orderFromController.intent}" hidden/>
+                   <!-- <input type="text" th:field="*{intent}" th:value="${orderFromController.intent}" hidden/>
                     <input type="text" th:field="*{price}" th:value="${orderFromController.price}" hidden/>
                     <input type="text" th:field="*{currency}" th:value="${orderFromController.currency}" hidden/>
                     <input type="text" th:field="*{method}" th:value="${orderFromController.method}" hidden/>
                     <input type="text" th:field="*{description}" th:value="${orderFromController.description}" hidden/>
-                    <input th:field="*{booking}" th:value="${orderFromController.booking}" hidden/>
-
+-->
                 </div>
                 <input type="submit" value="Continue to Paypal, obviously" class="btn">
             </form>

@@ -5,6 +5,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity(name="ticket")
 @Table(name="ticket")
@@ -17,8 +18,8 @@ public class Ticket {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name="bookingNo",referencedColumnName="bookingNo")
-    private Booking booking;
+    @JoinColumn(name="bookingNo",referencedColumnName="bookingNo",table = "booking")
+    private UUID bookingNo;
 
     @Column(nullable = false)
     private LocalDateTime expiryDateTime;

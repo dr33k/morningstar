@@ -9,6 +9,7 @@ import com.seven.ije.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -22,11 +23,11 @@ public class UserController {
     @Autowired
     UserService userService;
     @Autowired
-    UserAuthentication userAuthentication;
+    Authentication userAuthentication;
     @GetMapping("/search")
     public ResponseEntity<Response> getResource(@Valid @RequestParam(name = "id") String id) {
         //Check if user owns account
-        User sender = (User) userAuthentication.getInstance().getPrincipal();
+        User sender = (User) userAuthentication.getPrincipal();
 
         if (sender.getEmail().equals(id)) {
             UserRecord userRecord = (UserRecord) userService.get(id);
@@ -65,7 +66,7 @@ public class UserController {
     @PutMapping("/update")
     public ResponseEntity<Response> updateResource(@Valid @RequestBody UserUpdateRequest request) {
         //Check if user owns account
-        User sender = (User) userAuthentication.getInstance().getPrincipal();
+        User sender = (User) userAuthentication.getPrincipal();
         UserRecord userRecord = UserRecord.copy(request);
         userRecord = (UserRecord) userService.get(userRecord.email());
 
@@ -108,7 +109,7 @@ public class UserController {
 
     public ResponseEntity<Response> deleteResource ( String id){
             //Check if user owns account
-            User sender = (User) userAuthentication.getInstance().getPrincipal();
+            User sender = (User) userAuthentication.getPrincipal();
 
             if (sender.getEmail().equals(id)) {
             Boolean deleted = userService.delete(id);
