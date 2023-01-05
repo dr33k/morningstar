@@ -1,0 +1,56 @@
+Services have to be Platform Independent
+Services have to be accessible over a network
+Services have to be designed for machine to machine interaction
+
+Srevices have Service Definitions to specify how data is processed by them
+
+1. Request/Response Format
+2. Request Structure
+3. Response Structure
+4. Endpoint
+
+Date Exchanges take place through requestand respone
+We can make web services platform independent by sending information in platform independent formats (XML and JSON)
+An application should know the format of request and response through the service definition
+
+Transport defines how a service is called: Exposed over HTTP or MQ
+It could be exposed over the internet HTTP or over a Queue MQ
+Over a Queue, the service provider listens for requests and gives responses
+
+SOAP and REST are not explicitly comparable
+REST Defines an architecture for Message Exchange
+SOAP  is a protocol and imposes restrictions on the Data Exchange Format
+
+Simple Object Advanced Protocol
+SOAP uses XML
+It uses an Envelop (SOAP-ENV) which has a header and body
+ 
+SOAP uses XML request and Response
+Soap transports over MQ and HTTP
+Soap uses WSDL (Web Service Definition Language)
+
+WSDL: Endpoint, All operations, Request and Response Structures
+
+REpresentational State Transfer coined by Roy Fielding developed HTTP
+REST makes best use of HTTP by using its Methods and Status Codes
+
+Resources URRESOURCES COULD BE xml, html, json
+Rest cares only about the operations being performed and assumes they are provided with HTTP
+It does not matter how resources are represented nor the data exhange format
+On rest :
+There is no Message Exhange restriction
+Only HTTP is used as the transport layer. But SOAP uses either HTTP or MQ as the service layer.
+There is no standard for Service Definition. WSDL or Swagger could be used
+
+
+@EnableAutoConfiguration enables
+DispatcherServletAutoConfiguration class
+JacksonHttpMessageConverters class
+ErrorMvcAutoConfiguration class
+
+Spring boot starter web gives starter projects and Auto configurations
+
+URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("{/id}")
+                .buildAndExpand(id).toUri();
+                return new ResponseEntity.created(location).build();
