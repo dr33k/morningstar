@@ -22,13 +22,13 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity <Response> getResource() {
-        UserRecord userRecord = (UserRecord) userService.get(null); //Signifies account owner access
+        UserRecord userRecord = userService.get(null); //Signifies account owner access
         return ok(Set.of(userRecord));
     }
 
     @PutMapping("/update")
     public ResponseEntity <Response> updateResource(@Valid @RequestBody UserUpdateRequest request) {
-        UserRecord userRecord = (UserRecord) userService.update(request);
+        UserRecord userRecord = userService.update(request);
         return ok(Set.of(userRecord));
     }
     @DeleteMapping("/delete")

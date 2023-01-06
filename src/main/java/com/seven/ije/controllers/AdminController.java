@@ -38,48 +38,40 @@ public class AdminController {
 
     @GetMapping("/tickets/search")
     public ResponseEntity <Response> getTicket(@RequestParam(name = "booking_no") UUID bookingNo) {
-        TicketRecord ticketRecord = (TicketRecord) ticketService.get(bookingNo);
-        return ok(Set.of(ticketRecord));
+        return ok(Set.of(ticketService.get(bookingNo)));
     }
 
     @GetMapping("/passengers")
     public ResponseEntity <Response> getAllUsers() {
-        Set <UserRecord> userRecords = userService.getAll();
-        return ok(userRecords);
+        return ok(userService.getAll());
     }
 
     @GetMapping("/passengers/search")
     public ResponseEntity <Response> getUser(@Valid @RequestParam(name = "email") String email) {
-        UserRecord userRecord = (UserRecord) userService.get(email); //Signifies admin access
-        return ok(Set.of(userRecord));
+        return ok(Set.of(userService.get(email)));//Signifies admin access
     }
 
     @PatchMapping("/passengers/update")
     public ResponseEntity <Response> updateUserRole(@Valid @RequestBody UserUpdateRequest request) {
-        UserRecord userRecord = (UserRecord) userService.updateForAdmin(request);
-        return ok(Set.of(userRecord));
+        return ok(Set.of(userService.updateForAdmin(request)));
     }
 
     @GetMapping("/bookings")
     public ResponseEntity <Response> getAllBookings() {
-        Set <BookingRecord> bookingRecords = bookingService.getAll();
-        return ok(bookingRecords);
+        return ok(bookingService.getAll());
     }
     @GetMapping("/bookings/passengers")
     public ResponseEntity <Response> getAllBookingsByPassenger(@RequestParam(name = "email") String email) {
-        Set <BookingRecord> bookingRecords = bookingService.getAllByPassenger(email);
-        return ok(bookingRecords);
+        return ok(bookingService.getAllByPassenger(email));
     }
 
     @GetMapping("/bookings/search")
     public ResponseEntity <Response> getBooking(@Valid @RequestParam(name = "id") UUID id) {
-        BookingRecord bookingRecord = (BookingRecord) bookingService.get(id);
-        return ok(Set.of(bookingRecord));
+        return ok(Set.of(bookingService.get(id)));
     }
 
     @PatchMapping("/bookings/passengers/update")
     public ResponseEntity <Response> updateUserBookingStatus(@Valid @RequestBody BookingUpdateRequest request) {
-        BookingRecord bookingRecord = bookingService.update(request);
-        return ok(Set.of(bookingRecord));
+        return ok(Set.of(bookingService.update(request)));
     }
 }

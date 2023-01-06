@@ -40,7 +40,7 @@ public class TicketController {
     }
     @GetMapping("/search")
     public ResponseEntity<Response> getResource(@Valid @RequestParam(name = "booking_no") UUID bookingNo){
-        TicketRecord ticketRecord = (TicketRecord) ticketService.get(bookingNo);
+        TicketRecord ticketRecord = ticketService.get(bookingNo);
         return ok(Set.of(ticketRecord));
     }
 }

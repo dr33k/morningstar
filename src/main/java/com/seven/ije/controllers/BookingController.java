@@ -39,13 +39,13 @@ public class BookingController {
 
     @GetMapping("/search")
     public ResponseEntity <Response> getResource(@Valid @RequestParam(name = "id") UUID id) {
-        BookingRecord bookingRecord = (BookingRecord) bookingService.get(id);
+        BookingRecord bookingRecord = bookingService.get(id);
         return ok(Set.of(bookingRecord));
     }
 
     @PostMapping("/create")
     public ModelAndView createResource(@Valid @RequestBody BookingCreateRequest request) throws Exception {
-        BookingRecord bookingRecord = (BookingRecord) bookingService.create(request);
+        BookingRecord bookingRecord = bookingService.create(request);
 
         ModelAndView mav = new ModelAndView("redirect:/payment");
         reservationDetails = bookingRecord;
