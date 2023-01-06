@@ -3,9 +3,7 @@ package com.seven.ije.controllers;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
-import com.seven.ije.models.entities.Booking;
 import com.seven.ije.models.entities.Order;
-import com.seven.ije.models.exceptions.PaymentException;
 import com.seven.ije.models.records.BookingRecord;
 import com.seven.ije.models.records.TicketRecord;
 import com.seven.ije.services.BookingService;
@@ -17,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.context.annotation.ApplicationScope;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
@@ -89,7 +86,7 @@ public class PaymentController {
     }
 
     @GetMapping(SUCCESS_URL)
-    public ModelAndView paymentSuccess(@RequestParam("paymentId")String paymentId, @RequestParam("payerId")String payerId)throws PaymentException{
+    public ModelAndView paymentSuccess(@RequestParam("paymentId")String paymentId, @RequestParam("payerId")String payerId){
         try {
             Payment payment = paymentService.executePayment(paymentId, payerId);
             System.out.println(payment.toJSON());

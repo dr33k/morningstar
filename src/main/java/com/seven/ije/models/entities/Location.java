@@ -2,8 +2,10 @@ package com.seven.ije.models.entities;
 
 import com.seven.ije.models.enums.LocationStatus;
 import com.seven.ije.models.enums.StateName;
+import com.seven.ije.models.records.LocationRecord;
 import lombok.Data;
 import lombok.ToString;
+import org.springframework.beans.BeanUtils;
 
 import javax.persistence.*;
 
@@ -25,4 +27,10 @@ public class Location {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private LocationStatus status;
+
+    public static Location of(LocationRecord record) {
+        Location l = new Location();
+        BeanUtils.copyProperties(record, l);
+        return l;
+    }
 }

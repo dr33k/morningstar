@@ -85,9 +85,7 @@ public class TicketService implements AppService<TicketRecord, AppRequest> {
                 //Create ticket
                 Ticket ticket = new Ticket();
                 //Set Booking
-                Booking booking = new Booking();
-                BeanUtils.copyProperties(this.reservationDetails, booking);
-                ticket.setBooking(booking);
+                ticket.setBooking(Booking.of(reservationDetails));
                 //Set Creation Date
                 ticket.setCreationDateTime(LocalDateTime.now());
                 //Set Expiry Date

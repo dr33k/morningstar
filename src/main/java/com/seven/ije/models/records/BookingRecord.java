@@ -12,7 +12,7 @@ import java.util.UUID;
 public record BookingRecord(
         UUID bookingNo ,
         UUID voyageNo ,
-        LocalDateTime bookingDate ,
+        LocalDateTime bookingDateTime ,
         SeatType seatType ,
         BookingStatus status ,
         Boolean isPaid ,

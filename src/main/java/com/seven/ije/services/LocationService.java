@@ -1,145 +1,163 @@
 package com.seven.ije.services;
 
 import com.seven.ije.models.entities.Location;
+import com.seven.ije.models.entities.Location;
 import com.seven.ije.models.entities.LocationId;
+import com.seven.ije.models.enums.LocationStatus;
 import com.seven.ije.models.records.LocationRecord;
+import com.seven.ije.models.records.LocationRecord;
+import com.seven.ije.models.requests.AppRequest;
+import com.seven.ije.models.requests.LocationCreateRequest;
+import com.seven.ije.models.requests.LocationUpdateRequest;
 import com.seven.ije.repositories.LocationRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.seven.ije.models.enums.BookingStatus.VALID;
 import static com.seven.ije.models.enums.LocationStatus.*;
+
 @Service
 @Transactional
-public class LocationService implements com.seven.ije.services.Service {
+public class LocationService implements AppService <LocationRecord, AppRequest> {
     @Autowired
     LocationRepository locationRepository;
+
     @Override
-    public Set<LocationRecord> getAll() {
-        Set<LocationRecord> locationRecords = new HashSet<>(0);
-        List<Location> locationList = locationRepository.findAll();
-        for (Location location : locationList) {
-            LocationRecord locationRecord = LocationRecord.copy(location);
-            locationRecords.add(locationRecord);
-        }
+    public Set <LocationRecord> getAll() {
+        List <Location> locationList = locationRepository.findAll();
+
+        Set <LocationRecord> locationRecords = locationList.stream().map(LocationRecord::copy).collect(Collectors.toSet());
+
         return locationRecords;
     }
+
     @Override
-    public Record get(Object id) {
-        try {
-            LocationId locationId = (LocationId) id;
-            Optional<Location> locationReturned = locationRepository.findById(locationId);
-            /*If a value is present, map returns an Optional describing the result of applying
-             the given mapping function to the value, otherwise returns an empty Optional.
-            If the mapping function returns a null result then this method returns an empty Optional.
-             */
-            return locationReturned.map(LocationRecord::copy).orElse(null);
-        } catch (Exception ex) {
-           throw new RuntimeException("Location not found, please make sure search credentials are entered properly. Possibly: "+ex.getMessage());
-        }
+    public LocationRecord get(Object id) {
+        LocationId locationId = (LocationId) id;
+        Location location = locationRepository.findById(locationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
+                        "This location"+locationId.getStateCode()+"_"+locationId.getStationNo()+"does not exist or has been deleted"));
+        return LocationRecord.copy(location);
     }
-    public Location getLocationEntity(Object id) {
-        try {
-            LocationId locationId = (LocationId) id;
-            Optional<Location> locationReturned = locationRepository.findById(locationId);
-            return locationReturned.orElse(null);
-        } catch (Exception ex) {
-            throw new RuntimeException("Location not found, please make sure search credentials are entered properly. Possibly: "+ex.getMessage());
-        }
+
+    public LocationRecord getAvailable(Object id) {
+        LocationId locationId = (LocationId) id;
+        Location location = locationRepository.findByLocationIdAndStatusIn(locationId, List.of(USED,UNUSED))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
+                        "This location"+locationId.getStateCode()+"_"+locationId.getStationNo()+"is disabled or has been deleted"));
+        return LocationRecord.copy(location);
     }
     @Override
-    public Boolean delete(Object id) {
-        try {
-            LocationId locationId = (LocationId) id;
-            Optional<Location> lOpt = locationRepository.findById(locationId);
-            if(lOpt.isPresent()) {
-                if (lOpt.get().getStatus().equals(UNUSED)) {
-                    locationRepository.deleteById(locationId);
-                    return true;
-                }
-            }
-        } catch (Exception ex) {
-            return false;
+    public void delete(Object id) {
+        if (locationRepository.deleteByLocationIdAndStatus((LocationId) id , UNUSED.name()) == 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "Delete could not be performed. Why?:" +
+                    " \n 1) Locations that have been USED cannot be deleted but can be DISABLED. This is to preserve past records" +
+                    "\n2) This location has already been deleted");
         }
-        return false;
     }
+
     @Override
-    public Record create(Record recordObject) {
+    public LocationRecord create(AppRequest request) {
         try {//Cast recordObject into LocationRecord class
-            LocationRecord locationRecord = (LocationRecord) recordObject;
+            LocationCreateRequest locationCreateRequest = (LocationCreateRequest) request;
 
-                //Create Location entity
-                Location location = new Location();
-                BeanUtils.copyProperties(locationRecord, location);
+            //Create Location entity
+            Location location = new Location();
 
-                //Create a LocationId object
-                LocationId locationId = new LocationId();
+            //Create a LocationId object
+            LocationId locationId = new LocationId();
 
-                //Set the State code from the StateName enum
-                locationId.setStateCode(locationRecord.stateName().getStateCode());
+            //Set the State code from the StateName enum
+            locationId.setStateCode(locationCreateRequest.getStateName().getStateCode());
 
-                //Set the Station number from the Number of rows with the same StateCode in the database + 1
-                Integer stateCodeNumber = (locationRepository.countByLocationIdStateCode(locationId.getStateCode()) + 1);
-                String stationNo = leadingZeros(stateCodeNumber.toString(), 2);
-                locationId.setStationNo(stationNo);
+            //Set the Station number from the Number of rows with the same StateCode in the database + 1
+            Integer stateCodeNumber = (locationRepository.countByLocationIdStateCode(locationId.getStateCode()) + 1);
+            String stationNo = leadingZeros(stateCodeNumber.toString() , 2);
+            locationId.setStationNo(stationNo);
 
-                //Set LocationId object
-                location.setLocationId(locationId);
+            //Set LocationId object
+            location.setLocationId(locationId);
 
-                //Set Location status
-                location.setStatus(UNUSED);
+            //Set Location status
+            location.setStatus(UNUSED);
 
-                //Save
-                locationRepository.save(location);
-                return LocationRecord.copy(location);
-        }catch(Exception ex) {
-           throw new RuntimeException("Location could be created, please try again later. Why? "+ex.getMessage());
+            //Set StationName
+            location.setStationName(locationCreateRequest.getStationName());
+
+            //Save
+            locationRepository.save(location);
+            return LocationRecord.copy(location);
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR ,
+                    "Location could be created, please contact System Administrator. Why? " + ex.getMessage());
         }
     }
 
     @Override
-    public Record update(Record recordObject) {
-        boolean modified = false;
-        try {//Retrieve indicated Location Object from the Database
-            LocationRecord propertiesToUpdate = (LocationRecord) recordObject;
-            Optional<Location> locationReturned = locationRepository.findById(propertiesToUpdate.locationId());
+    public LocationRecord update(AppRequest request) {
 
-            if (locationReturned.isPresent()) {
-                Location location = locationReturned.get();
-                //Update Station name
-                //If the property is not null and is a different value from before
-                if(propertiesToUpdate.stationName()!=null && !propertiesToUpdate.stationName().equals(location.getStationName())) {
-                    location.setStationName(propertiesToUpdate.stationName());
-                    modified =  (modified)?modified:true;
-                }
-                //Update to USED
-                if(propertiesToUpdate.status() != null && propertiesToUpdate.status().equals(USED)&& !location.getStatus().equals(USED)){
-                    location.setStatus(USED);
-                    modified =  (modified)?modified:true;
-                }
-                //Update to INACTIVE
-                if(propertiesToUpdate.status() != null && propertiesToUpdate.status().equals(INACTIVE)&& !location.getStatus().equals(INACTIVE)){
-                    location.setStatus(INACTIVE);
-                    modified =  (modified)?modified:true;
-                }
-                if(modified) {
-                    ;;;
-                    locationRepository.save(location);
-                    return LocationRecord.copy(location);
+        try {
+            //Retrieve indicated Location Object from the Database
+            LocationUpdateRequest locationUpdateRequest = (LocationUpdateRequest) request;
+            Location location = locationRepository.findById(locationUpdateRequest.getLocationId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
+                    "This location does not exist or has been deleted"));
+
+            String oldStationName = location.getStationName();
+            String newStationName = locationUpdateRequest.getStationName();
+            LocationStatus oldStatus = location.getStatus();
+            LocationStatus newStatus = locationUpdateRequest.getStatus();
+
+            //Update Station name
+            //If the property is not null and is a different value from before
+            if (newStationName != null) {
+                if (newStationName != oldStationName) {
+                    location.setStationName(newStationName);
+                    modifyLocation(location, newStatus);
                 }
             }
+            else if (newStatus != null) {
+                final String UNSUPPORTED = "UNSUPPORTED OPERATION. Cannot be updated to anything but %s";
+                switch (oldStatus) {
+                    case USED -> {
+                        if (!newStatus.equals(DISABLED_USED))
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST , String.format(UNSUPPORTED , DISABLED_USED));
+                        modifyLocation(location , newStatus);
+                    }
+                    case DISABLED_USED -> {
+                        if (!newStatus.equals(USED))
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST , String.format(UNSUPPORTED , USED));
+                        modifyLocation(location , newStatus);
+                    }
+                    case DISABLED_UNUSED -> {
+                        if (!newStatus.equals(UNUSED))
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST , String.format(UNSUPPORTED , UNUSED));
+                        modifyLocation(location , newStatus);
+                    }
+                    case UNUSED -> {
+                        modifyLocation(location , newStatus);
+                    }
+                }
+            }
+            return LocationRecord.copy(location);
         } catch (Exception ex) {
-            throw new RuntimeException("Location could not be modified, please try again. Why? "+ex.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR ,
+                    "Location could not be modified, please try again. Why? " + ex.getMessage() , ex);
         }
-        return null;
     }
 
-    private String leadingZeros(String s, int reqLength){
-        while(s.length() < reqLength){
-            s="0"+s;
-        }
-        return s;
+    private String leadingZeros(String s , int reqLength) {
+        return "0".repeat(reqLength - s.length()).concat(s);
+    }
+
+    public void modifyLocation(Location location, LocationStatus newStatus){
+        location.setStatus(newStatus);
+        locationRepository.save(location);
     }
 }

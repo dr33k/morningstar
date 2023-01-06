@@ -8,4 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface VoyageRepository extends JpaRepository<Voyage, UUID> {
+    Integer deleteByIdAndStatus(UUID voyageNo, String voyageStatus);
 }

@@ -5,6 +5,7 @@ import com.seven.ije.models.enums.VoyageStatus;
 import lombok.Data;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Validated
@@ -13,4 +14,5 @@ import java.util.UUID;
 public class VoyageUpdateRequest implements AppRequest{
     private UUID voyageNo;
     private VoyageStatus status;
+    private LocalDateTime travelDateTime;
 }
