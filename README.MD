@@ -23,25 +23,22 @@ password:software
 John Doe has ADMIN privileges.
 For each entity listed above, the 'status' field can be modified after creation.
 
-A LOCATION may be deleted if it has not been used for any VOYAGES. If so, it can only be rendered 'INACTIVE' when not required
+A LOCATION may be deleted if it is UNUSUED. Else, it can only be disabled when not required. THis tries to make the database immutable
 
-A VOYAGE may not be deleted
+Only PENDING VOYAGEs may be deleted 
 
-A BOOKING may be deleted but ONLY if it is 'CANCELLED' first (If the status is modified to 'CANCELLED')
+On creation of a BOOKING a TICKET is created automatically after payment.
 
-On creation of a BOOKING a TICKET is created automatically for the user by the Postgres Database.
+A BOOKING may be deleted but ONLY if it is CANCELLED first
 
-On 'CANCELLING' of a BOOKING, the TICKET is automatically deleted 
-
+On deleting of a CANCELLED BOOKING, the TICKET is automatically deleted 
 
 A LOCATION is identified by its 'stateCode' and 'stationNo'
 
 The stateCode is the first 4 uppercase letters of any Nigerian State
 
-The stationNo is a 2 digit number (01-99) signifying the number of a train station in that state
+The stationNo is a 2-digit number (01-99) signifying the number of a train station in that state
 
-Dates of Birth should be Dates in the Past
+Dates of Birth should be Dates in the Past and dates of travel should be Dates in the Future
 
-Dates of Travel should be Dates in the Future
-
-ENJOY!!!
+ENJOY

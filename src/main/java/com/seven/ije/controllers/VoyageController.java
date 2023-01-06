@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
 import static com.seven.ije.util.Responder.ok;
@@ -37,5 +38,11 @@ public class VoyageController {
     @PutMapping("/update")
     public ResponseEntity<Response> updateResource(@Valid @RequestBody VoyageUpdateRequest request) {
        return ok(Set.of(voyageService.update(request)));
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Response> deleteResource(@Valid @RequestParam(name = "id") UUID voyageNo){
+        voyageService.delete(voyageNo);
+        return ok(Collections.emptySet());
     }
 }
