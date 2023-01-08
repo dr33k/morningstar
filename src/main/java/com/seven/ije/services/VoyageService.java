@@ -1,25 +1,18 @@
 package com.seven.ije.services;
 
-import com.seven.ije.models.entities.Booking;
 import com.seven.ije.models.entities.Voyage;
 import com.seven.ije.models.entities.Location;
-import com.seven.ije.models.enums.LocationStatus;
 import com.seven.ije.models.enums.VoyageStatus;
-import com.seven.ije.models.records.BookingRecord;
-import com.seven.ije.models.records.LocationRecord;
 import com.seven.ije.models.records.VoyageRecord;
 import com.seven.ije.models.requests.AppRequest;
 import com.seven.ije.models.requests.VoyageCreateRequest;
 import com.seven.ije.models.requests.VoyageUpdateRequest;
 import com.seven.ije.repositories.VoyageRepository;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -52,6 +45,13 @@ public class VoyageService implements AppService <VoyageRecord, AppRequest> {
         Voyage voyage = voyageRepository.findById((UUID) id).
                 orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
                         "This voyage does not exist or has been removed"));
+        return VoyageRecord.copy(voyage);
+    }
+
+    public VoyageRecord getPublished(Object id) {
+        Voyage voyage = voyageRepository.findByVoyageNoAndPublished((UUID) id, true).
+                orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
+                        "This voyage does is not available for reservations or has been removed"));
         return VoyageRecord.copy(voyage);
     }
 
@@ -89,9 +89,10 @@ public class VoyageService implements AppService <VoyageRecord, AppRequest> {
 
     @Override
     public void delete(Object id) {
-        if (voyageRepository.deleteByIdAndStatus((UUID) id , PENDING.name()) == 0)
+        if (voyageRepository.deleteByVoyageNoAndStatusAndPublished((UUID) id , PENDING, false) == 0)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "Voyage could not be deleted. Why:" +
                     "1) Only voyaged with the PENDING status can be deleted. Others have to be CANCELLED" +
+                    "2) If the Voyage is still PUBLISHED please unpublish it first" +
                     "2) The voyage selected does not exist or has been removed");
     }
 
@@ -105,11 +106,15 @@ public class VoyageService implements AppService <VoyageRecord, AppRequest> {
 
             VoyageStatus oldStatus = voyage.getStatus();
             VoyageStatus newStatus = voyageUpdateRequest.getStatus();
-            LocalDateTime oldTime = voyage.getTravelDateTime();
-            LocalDateTime newTime = voyageUpdateRequest.getTravelDateTime();
+            ZonedDateTime oldTime = voyage.getDepartureDateTime();
+            ZonedDateTime newTime = voyageUpdateRequest.getTravelDateTime();
             Set <VoyageStatus> unupdatable = Set.of(CANCELLED , COMPLETED);
 
-            if (newStatus != null) {
+            if(voyageUpdateRequest.getPublished() != null){
+                voyage.setPublished(voyageUpdateRequest.getPublished());
+                modified = true;
+            }
+            else if (newStatus != null) {
                 if (unupdatable.contains(oldStatus))
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "Updating a CANCELLED or COMPLETED voyage is not permitted");
                 if (newStatus.equals(PENDING))
@@ -117,10 +122,10 @@ public class VoyageService implements AppService <VoyageRecord, AppRequest> {
                 voyage.setStatus(newStatus);
                 modified = true;
             }
-            if (newTime != null) {
+            else if (newTime != null) {
                 if (newTime.isBefore(oldTime)) //Preponing
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "Please set a date in the future");
-                voyage.setTravelDateTime(newTime);
+                voyage.setDepartureDateTime(newTime);
                 modified = true;
             }
             if (modified) {

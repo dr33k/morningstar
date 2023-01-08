@@ -1,5 +1,6 @@
 package com.seven.ije.controllers;
 
+import com.seven.ije.models.entities.Booking;
 import com.seven.ije.models.records.BookingRecord;
 import com.seven.ije.models.requests.BookingCreateRequest;
 import com.seven.ije.models.responses.Response;
@@ -21,11 +22,11 @@ import static com.seven.ije.util.Responder.ok;
 public class BookingController {
     BookingService bookingService;
     UserService userService;
-    BookingRecord reservationDetails;
+    Booking reservationDetails;
 
     public BookingController(BookingService bookingService ,
                              UserService userService ,
-                             @Qualifier("reservationDetails") BookingRecord reservationDetails) {
+                             @Qualifier("reservationDetails") Booking reservationDetails) {
         this.bookingService = bookingService;
         this.userService = userService;
         this.reservationDetails = reservationDetails;
@@ -45,10 +46,8 @@ public class BookingController {
 
     @PostMapping("/create")
     public ModelAndView createResource(@Valid @RequestBody BookingCreateRequest request) throws Exception {
-        BookingRecord bookingRecord = bookingService.create(request);
-
         ModelAndView mav = new ModelAndView("redirect:/payment");
-        reservationDetails = bookingRecord;
+        reservationDetails = Booking.of(request);
         return mav;
     }
 

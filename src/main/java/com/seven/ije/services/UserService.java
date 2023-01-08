@@ -80,8 +80,7 @@ public class UserService implements AppService <UserRecord, AppRequest>, UserDet
 
             //Set role
             user.setRole(UserRole.PASSENGER);
-            //Set date of registration
-            user.setDateReg(LocalDateTime.now());
+
             //Encode password
             user.setPassword(passwordEncoder.encode(userCreateRequest.getPassword()));
             //Save
@@ -110,8 +109,11 @@ public class UserService implements AppService <UserRecord, AppRequest>, UserDet
             //Retrieve indicated User object from the Authentication principal
             User user = (User) userAuthentication.getPrincipal();
             UserUpdateRequest userUpdateRequest = (UserUpdateRequest) request;
+            String email = userUpdateRequest.getEmail();
 
-            if (!userRepository.existsByEmail(user.getEmail()))
+            if(email == null)
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "Please identify the user");
+            if (!userRepository.existsByEmail(email))
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND , "User account could not be found");
 
             Boolean modified = false;
@@ -151,9 +153,11 @@ public class UserService implements AppService <UserRecord, AppRequest>, UserDet
     public UserRecord updateForAdmin(AppRequest request) {
         try {
             UserUpdateRequest userUpdateRequest = (UserUpdateRequest) request;
-
+            String email = userUpdateRequest.getEmail();
+            if(email == null)
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "Please identify the user");
             //Retrieve indicated User Object from the Database
-            User userReturned = userRepository.findByEmail(userUpdateRequest.getEmail())
+            User userReturned = userRepository.findByEmail(email)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
                             "This user does not exist or has been deleted"));
 

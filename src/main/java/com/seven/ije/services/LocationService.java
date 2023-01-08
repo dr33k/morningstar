@@ -1,16 +1,13 @@
 package com.seven.ije.services;
 
 import com.seven.ije.models.entities.Location;
-import com.seven.ije.models.entities.Location;
 import com.seven.ije.models.entities.LocationId;
 import com.seven.ije.models.enums.LocationStatus;
-import com.seven.ije.models.records.LocationRecord;
 import com.seven.ije.models.records.LocationRecord;
 import com.seven.ije.models.requests.AppRequest;
 import com.seven.ije.models.requests.LocationCreateRequest;
 import com.seven.ije.models.requests.LocationUpdateRequest;
 import com.seven.ije.repositories.LocationRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,7 +17,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.seven.ije.models.enums.BookingStatus.VALID;
 import static com.seven.ije.models.enums.LocationStatus.*;
 
 @Service
@@ -56,7 +52,7 @@ public class LocationService implements AppService <LocationRecord, AppRequest> 
     }
     @Override
     public void delete(Object id) {
-        if (locationRepository.deleteByLocationIdAndStatus((LocationId) id , UNUSED.name()) == 0) {
+        if (locationRepository.deleteByLocationIdAndStatus((LocationId) id , UNUSED) == 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "Delete could not be performed. Why?:" +
                     " \n 1) Locations that have been USED cannot be deleted but can be DISABLED. This is to preserve past records" +
                     "\n2) This location has already been deleted");
@@ -69,27 +65,27 @@ public class LocationService implements AppService <LocationRecord, AppRequest> 
             LocationCreateRequest locationCreateRequest = (LocationCreateRequest) request;
 
             //Create Location entity
-            Location location = new Location();
+            Location location = Location.of(locationCreateRequest);
 
             //Create a LocationId object
             LocationId locationId = new LocationId();
 
-            //Set the State code from the StateName enum
-            locationId.setStateCode(locationCreateRequest.getStateName().getStateCode());
+            //Set the State code from the StateCode.java enum
+            locationId.setStateCode(locationCreateRequest.getStateCode());
 
             //Set the Station number from the Number of rows with the same StateCode in the database + 1
-            Integer stateCodeNumber = (locationRepository.countByLocationIdStateCode(locationId.getStateCode()) + 1);
+            Integer stateCodeNumber = (locationRepository.countByLocationIdStateCode(locationId.getStateCode().name()) + 1);
             String stationNo = leadingZeros(stateCodeNumber.toString() , 2);
             locationId.setStationNo(stationNo);
 
             //Set LocationId object
             location.setLocationId(locationId);
 
+            //Set State Name
+            location.setStateName(locationCreateRequest.getStateCode().getStateName());
+
             //Set Location status
             location.setStatus(UNUSED);
-
-            //Set StationName
-            location.setStationName(locationCreateRequest.getStationName());
 
             //Save
             locationRepository.save(location);
@@ -141,6 +137,8 @@ public class LocationService implements AppService <LocationRecord, AppRequest> 
                         modifyLocation(location , newStatus);
                     }
                     case UNUSED -> {
+                        if (newStatus.equals(DISABLED_USED))
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST ,"UNSUPPORTED OPERATION. Use DISABLED_UNUSED instead");
                         modifyLocation(location , newStatus);
                     }
                 }

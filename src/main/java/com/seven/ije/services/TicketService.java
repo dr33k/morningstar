@@ -10,6 +10,7 @@ import com.seven.ije.models.records.VoyageRecord;
 import com.seven.ije.models.requests.AppRequest;
 import com.seven.ije.repositories.TicketRepository;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,13 +31,13 @@ public class TicketService implements AppService<TicketRecord, AppRequest> {
     private BookingService bookingService;
     private VoyageService voyageService;
     private Authentication userAuthentication;
-    private BookingRecord reservationDetails;
+    private Booking reservationDetails;
 
     public TicketService(TicketRepository ticketRepository ,
                          BookingService bookingService,
                          Authentication userAuthentication,
                          VoyageService voyageService,
-                         BookingRecord reservationDetails) {
+                         @Qualifier("reservationDetails") Booking reservationDetails) {
         this.ticketRepository = ticketRepository;
         this.bookingService = bookingService;
         this.userAuthentication = userAuthentication;
@@ -65,7 +67,7 @@ public class TicketService implements AppService<TicketRecord, AppRequest> {
                             "This ticket does not exist or has been deleted"));
         }
         else{
-            ticket = ticketRepository.findByBookingPassengerIdAndBookingNo(user.getId() , (UUID) bookingNo)
+            ticket = ticketRepository.findByBookingPassengerIdAndBookingBookingNo(user.getId() , (UUID) bookingNo)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
                             "This ticket does not exist or has been deleted"));
         }
@@ -85,14 +87,15 @@ public class TicketService implements AppService<TicketRecord, AppRequest> {
                 //Create ticket
                 Ticket ticket = new Ticket();
                 //Set Booking
-                ticket.setBooking(Booking.of(reservationDetails));
+                ticket.setBooking(reservationDetails);
                 //Set Creation Date
-                ticket.setCreationDateTime(LocalDateTime.now());
+                ticket.setCreationDateTime(ZonedDateTime.now());
                 //Set Expiry Date
-                VoyageRecord voyageRecord = voyageService.get(this.reservationDetails.voyageNo());
-                ticket.setExpiryDateTime((voyageRecord.travelDateTime().plusDays(1L)));
+                VoyageRecord voyageRecord = voyageService.get(this.reservationDetails.getVoyage());
+                ticket.setExpiryDateTime(reservationDetails.getVoyage().getDepartureDateTime().plusDays(1L));
                 //Save Booking and update reservationDetails
-                this.reservationDetails = bookingService.userUpdate(this.reservationDetails.bookingNo(),false, true);
+                this.reservationDetails = Booking.of(
+                        bookingService.userUpdate(this.reservationDetails.getBookingNo(),false, true));
                 //Save Ticket
                 ticketRepository.save(ticket);
                 return TicketRecord.copy(ticket);

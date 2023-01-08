@@ -6,7 +6,7 @@ import com.seven.ije.models.requests.UserCreateRequest;
 import com.seven.ije.models.requests.UserUpdateRequest;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 public record UserRecord(
         String firstName,
@@ -15,7 +15,8 @@ public record UserRecord(
         String email,
         String password,
         LocalDate dateBirth,
-        LocalDateTime dateReg,
+        ZonedDateTime dateReg,
+        ZonedDateTime dateModified,
         UserRole role,
         Boolean isAccountNonExpired,
         Boolean isAccountNonLocked,
@@ -32,6 +33,7 @@ public record UserRecord(
                 u.getPassword(),
                 u.getDateBirth(),
                 u.getDateReg(),
+                u.getDateModified(),
                 u.getRole(),
                 u.isAccountNonExpired(),
                 u.isAccountNonLocked(),
@@ -50,6 +52,7 @@ public record UserRecord(
                 u.getDateBirth(),
                 null,
                 null,
+                null,
                 u.getIsAccountNonExpired(),
                 u.getIsAccountNonLocked(),
                 u.getIsCredentialsNonExpired(),
@@ -65,6 +68,7 @@ public record UserRecord(
                 u.getEmail(),
                 u.getPassword(),
                 u.getDateBirth(),
+                null,
                 null,
                 null,
                 true,

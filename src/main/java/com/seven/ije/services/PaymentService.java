@@ -16,8 +16,10 @@ import java.util.Map;
 @Service
 @Transactional
 public class PaymentService {
-    @Autowired
     private APIContext apiContext;
+    public PaymentService(APIContext apiContext) {
+        this.apiContext = apiContext;
+    }
 
     public Payment createPayment(Double total,
                                  String currency,

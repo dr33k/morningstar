@@ -3,13 +3,12 @@ package com.seven.ije.controllers;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
+import com.seven.ije.models.entities.Booking;
 import com.seven.ije.models.entities.Order;
-import com.seven.ije.models.records.BookingRecord;
 import com.seven.ije.models.records.TicketRecord;
 import com.seven.ije.services.BookingService;
 import com.seven.ije.services.PaymentService;
 import com.seven.ije.services.TicketService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.ModelMap;
@@ -33,15 +32,18 @@ public class PaymentController {
     private static final String SUCCESS_URL = "/success"; // The success url will carry the bookingNo as a request parameter
     private static final String CANCEL_URL = "/cancel"; //Likewise the cancel url
 
-    @Autowired
     PaymentService paymentService;
-    @Autowired
     TicketService ticketService;
-    @Autowired
     BookingService bookingService;
-    @Autowired
-    @Qualifier("reservationDetails")
-    BookingRecord reservationDetails;
+    Booking reservationDetails;
+
+    public PaymentController(PaymentService paymentService , TicketService ticketService , BookingService bookingService , @Qualifier("reservationDetails") Booking reservationDetails) {
+        this.paymentService = paymentService;
+        this.ticketService = ticketService;
+        this.bookingService = bookingService;
+        this.reservationDetails = reservationDetails;
+    }
+
     private Order order;
 
 //    @ModelAttribute("order")
@@ -54,12 +56,12 @@ public class PaymentController {
                 "[GET: /payment] BindingResult has errors" + bindingResult.getAllErrors().stream().findFirst().get());}
 
         this.order = Order.builder()
-                    .price(paymentService.getPrice(Map.of(reservationDetails.seatType().toString(), 1)))
+                    .price(paymentService.getPrice(Map.of(reservationDetails.getSeatType().toString(), 1)))
                     .currency(NGN.toString())
                     .method(PAYPAL.toString())
-                    .intent("Ticket for Booking: " + reservationDetails.bookingNo())
-                    .description("Ticket for Voyage: " + reservationDetails.voyageNo())
-                    .bookingRecord(reservationDetails).build();
+                    .intent("Ticket for Booking: " + reservationDetails.getBookingNo())
+                    .description("Ticket for Voyage: " + reservationDetails.getVoyage().getVoyageNo())
+                    .booking(reservationDetails).build();
 
             modelMap.put("orderFromController", this.order);
             modelMap.put("displayWarning", displayWarning);
@@ -71,8 +73,8 @@ public class PaymentController {
     public String payment(ModelMap modelMap){
         try{
             Payment payment = paymentService.createPayment(this.order.getPrice(), this.order.getCurrency(), this.order.getMethod(), this.order.getIntent(), this.order.getDescription(),
-                    (DOMAIN_URL+CANCEL_URL+"?bookingNo="+order.getBookingRecord().bookingNo()),
-                    (DOMAIN_URL+SUCCESS_URL+"?bookingNo="+order.getBookingRecord().bookingNo()));
+                    (DOMAIN_URL+CANCEL_URL+"?bookingNo="+order.getBooking().getBookingNo()),
+                    (DOMAIN_URL+SUCCESS_URL+"?bookingNo="+order.getBooking().getBookingNo()));
             for(Links link:payment.getLinks()){
                 if(link.getRel().equals("approval_url")){
                     return "redirect:"+link.getHref();

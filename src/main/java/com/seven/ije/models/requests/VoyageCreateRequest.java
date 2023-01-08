@@ -6,7 +6,7 @@ import lombok.Data;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.Future;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Validated
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -15,5 +15,5 @@ public class VoyageCreateRequest implements AppRequest {
     private LocationId departureLocationId;
     private LocationId arrivalLocationId;
     @Future(message = "Past and current dates not allowed")
-    private LocalDateTime travelDateTime;
+    private ZonedDateTime departureDateTime;
 }

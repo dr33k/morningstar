@@ -6,17 +6,18 @@ import com.seven.ije.models.enums.VoyageStatus;
 import com.seven.ije.models.requests.VoyageCreateRequest;
 import com.seven.ije.models.requests.VoyageUpdateRequest;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 public record VoyageRecord(
         UUID voyageNo,
         LocationId departureLocationId,
         LocationId arrivalLocationId,
-        LocalDateTime travelDateTime,
+        ZonedDateTime departureDateTime,
 
-        LocalDateTime arrivalDateTime,
+        ZonedDateTime arrivalDateTime,
         VoyageStatus status,
+        Boolean published,
         String message
 ) {
     public static VoyageRecord copy(Voyage b){
@@ -24,9 +25,10 @@ public record VoyageRecord(
                 b.getVoyageNo(),
                 b.getDepartureLocation().getLocationId(),
                 b.getArrivalLocation().getLocationId(),
-                b.getTravelDateTime(),
+                b.getDepartureDateTime(),
                 b.getArrivalDateTime(),
                 b.getStatus(),
+                b.getPublished(),
                 null
         );
     }
@@ -35,9 +37,10 @@ public record VoyageRecord(
                 null,
                 b.getDepartureLocationId(),
                 b.getArrivalLocationId(),
-                b.getTravelDateTime(),
+                b.getDepartureDateTime(),
                 null,
                 null,
+                false,
                 null
         );
     }
@@ -49,6 +52,7 @@ public record VoyageRecord(
                 null,
                 null,
                 b.getStatus(),
+                b.getPublished(),
                 null
         );
     }

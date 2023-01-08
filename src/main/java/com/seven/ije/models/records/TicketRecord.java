@@ -2,13 +2,13 @@ package com.seven.ije.models.records;
 
 import com.seven.ije.models.entities.Ticket;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 public record TicketRecord(
         UUID bookingNo,
-        LocalDateTime creationDate,
-        LocalDateTime expiryDate
+        ZonedDateTime creationDate,
+        ZonedDateTime expiryDate
 ) {
     public static TicketRecord copy(Ticket t){
         return new TicketRecord(

@@ -24,7 +24,7 @@ public class LocationController {
         return ok(locationService.getAll());
     }
     @GetMapping("/search")
-    public ResponseEntity<Response> getResource( @Valid @RequestBody LocationId locationId) {
+    public ResponseEntity<Response> getResource( @Valid @RequestParam LocationId locationId) {
         return ok(Set.of(locationService.get(locationId)));
     }
     @PostMapping("/create")

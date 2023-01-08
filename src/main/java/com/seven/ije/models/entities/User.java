@@ -4,6 +4,8 @@ import com.seven.ije.models.enums.UserRole;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,20 +13,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Set;
-import java.util.UUID;
 
-@Entity(name="r_user")
+@Entity
 @Table(name="r_user")
 @Data
 @ToString
 @NoArgsConstructor
 public class User implements Serializable, UserDetails {
     @Id
-    @SequenceGenerator(name = "r_user_sequence",initialValue = 1,allocationSize = 1)
-    @GeneratedValue(generator = "r_user_sequence",strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -45,9 +45,13 @@ public class User implements Serializable, UserDetails {
     @Column(nullable = false)
     private LocalDate dateBirth;
 
+    @CreationTimestamp
     @Column(nullable = false)
-    private LocalDateTime dateReg;
+    private ZonedDateTime dateReg;
 
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private ZonedDateTime dateModified;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private UserRole role;

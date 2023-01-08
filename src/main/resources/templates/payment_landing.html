@@ -119,19 +119,19 @@ span.price {
                     <p th:text=${model.displayWarning}></p>
                     <p>
                     <h3>Booking No: </h3>
-                    <span th:text="${model.orderFromController.bookingRecord.bookingNo}"></span>
+                    <span th:text="${model.orderFromController.booking.bookingNo}"></span>
                     </p>
                     <p>
                     <h3>Voyage No: </h3>
-                    <span th:text="${model.orderFromController.bookingRecord.voyageNo}"></span>
+                    <span th:text="${model.orderFromController.booking.voyageNo}"></span>
                     </p>
                     <p>
                     <h3>Seat Type: </h3>
-                    <span th:text = ${model.orderFromController.bookingRecord.seatType.name()}"></span>
+                    <span th:text = ${model.orderFromController.booking.seatType.name()}"></span>
                     </p>
                     <p>
                     <h3>Created on: </h3>
-                    <span th:text = ${model.orderFromController.bookingRecord.bookingDate}"></span>
+                    <span th:text = ${model.orderFromController.booking.bookingDateDime}"></span>
                     </p>
 
                    <!-- <input type="text" th:field="*{intent}" th:value="${orderFromController.intent}" hidden/>

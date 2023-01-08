@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.annotation.ApplicationScope;
 import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -84,7 +85,7 @@ public class BookingService implements AppService <BookingRecord, AppRequest> {
         try {
             BookingCreateRequest bookingRequest = (BookingCreateRequest) request;
 
-            VoyageRecord voyageRecord = voyageService.get(bookingRequest.getVoyageNo());
+            VoyageRecord voyageRecord = voyageService.getPublished(bookingRequest.getVoyageNo());
 
             if (!voyageRecord.status().equals(VoyageStatus.PENDING))
                 throw new ResponseStatusException(HttpStatus.CONFLICT ,
@@ -92,7 +93,7 @@ public class BookingService implements AppService <BookingRecord, AppRequest> {
 
             Booking booking = new Booking();
             //Set Voyage
-            booking.setVoyageNo(voyageRecord.voyageNo());
+            booking.setVoyage(Voyage.of(voyageRecord));
             //Set Passenger
             User user = (User) userAuthentication.getPrincipal();
             booking.setPassenger(user);
@@ -101,7 +102,7 @@ public class BookingService implements AppService <BookingRecord, AppRequest> {
             //Set payment status
             booking.setIsPaid(false);
             //Set booking date
-            booking.setBookingDateTime(LocalDateTime.now());
+            booking.setBookingDateTime(ZonedDateTime.now());
             //Save
             bookingRepository.save(booking);
 

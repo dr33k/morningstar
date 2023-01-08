@@ -1,4 +1,4 @@
-package com.seven.ije.config.Paypal;
+package com.seven.ije.config.paypal;
 
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.OAuthTokenCredential;

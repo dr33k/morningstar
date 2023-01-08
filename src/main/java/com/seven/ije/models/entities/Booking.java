@@ -3,38 +3,39 @@ package com.seven.ije.models.entities;
 import com.seven.ije.models.enums.BookingStatus;
 import com.seven.ije.models.enums.SeatType;
 import com.seven.ije.models.records.BookingRecord;
+import com.seven.ije.models.requests.BookingCreateRequest;
 import lombok.Data;
 import lombok.ToString;
-import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.beans.BeanUtils;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
-@Entity(name="booking")
+@Entity
 @Table(name="booking")
 @Data
 @ToString
 public class Booking {
     @Id
-    @GenericGenerator(name = "booking_uuid_gen", strategy = "org.hibernate.id.UUIDGenerator")
-    @GeneratedValue(generator = "booking_uuid_gen")
+    @GeneratedValue
     private UUID bookingNo;
 
     @ManyToOne
-    @Column(name = "voyageNo")
-    private UUID voyageNo;
+    @JoinColumn(name="voyage_no")
+    private Voyage voyage;
 
-    @OneToOne
-    @JoinColumn(name = "passenger", referencedColumnName = "id", table = "r_user")
+    @ManyToOne
+    @JoinColumn(name = "passenger")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User passenger;
 
+    @CreationTimestamp
     @Column(nullable = false)
-    private LocalDateTime bookingDateTime;
+    private ZonedDateTime bookingDateTime;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -47,10 +48,14 @@ public class Booking {
     @Column(nullable = false)
     private Boolean isPaid;
 
-
     public static Booking of(BookingRecord record) {
         Booking b = new Booking();
         BeanUtils.copyProperties(record, b);
+        return b;
+    }
+    public static Booking of(BookingCreateRequest request) {
+        Booking b = new Booking();
+        BeanUtils.copyProperties(request, b);
         return b;
     }
 }

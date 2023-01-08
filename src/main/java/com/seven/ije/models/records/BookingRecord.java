@@ -1,18 +1,18 @@
 package com.seven.ije.models.records;
 
 import com.seven.ije.models.entities.Booking;
+import com.seven.ije.models.entities.Voyage;
 import com.seven.ije.models.enums.BookingStatus;
 import com.seven.ije.models.enums.SeatType;
-import com.seven.ije.models.requests.BookingCreateRequest;
 import com.seven.ije.models.requests.BookingUpdateRequest;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 public record BookingRecord(
         UUID bookingNo ,
-        UUID voyageNo ,
-        LocalDateTime bookingDateTime ,
+        Voyage voyage ,
+        ZonedDateTime bookingDateTime ,
         SeatType seatType ,
         BookingStatus status ,
         Boolean isPaid ,
@@ -24,23 +24,11 @@ public record BookingRecord(
     public static BookingRecord copy(Booking b) {
         return new BookingRecord(
                 b.getBookingNo() ,
-                b.getVoyageNo() ,
+                b.getVoyage() ,
                 b.getBookingDateTime() ,
                 b.getSeatType() ,
                 b.getStatus() ,
                 b.getIsPaid() ,
-                null
-        );
-    }
-
-    public static BookingRecord copy(BookingCreateRequest b) {
-        return new BookingRecord(
-                null ,
-                b.getVoyageNo() ,
-                null ,
-                b.getSeatType() ,
-                null ,
-                null ,
                 null
         );
     }
