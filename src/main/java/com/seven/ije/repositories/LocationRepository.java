@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
+@Repository("locationRepository")
 public interface LocationRepository extends JpaRepository <Location, LocationId>{
     Integer countByLocationIdStateCode(String stateCode);
     Integer deleteByLocationIdAndStatus(LocationId id, LocationStatus status);

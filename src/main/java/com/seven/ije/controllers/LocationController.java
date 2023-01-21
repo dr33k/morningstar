@@ -5,9 +5,13 @@ import com.seven.ije.models.requests.LocationCreateRequest;
 import com.seven.ije.models.requests.LocationUpdateRequest;
 import com.seven.ije.models.responses.Response;
 import com.seven.ije.services.LocationService;
+import com.seven.ije.util.Responder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.Collections;
 import java.util.Set;
 import static com.seven.ije.util.Responder.ok;
@@ -29,7 +33,7 @@ public class LocationController {
     }
     @PostMapping("/create")
     public ResponseEntity<Response> createResource(@Valid @RequestBody LocationCreateRequest request) {
-        return ok(Set.of(locationService.create(request)));
+        return Responder.created(Set.of(locationService.create(request)),"/location");
     }
     @PutMapping("/update")
     public ResponseEntity<Response> updateResource(@Valid @RequestBody LocationUpdateRequest request) {

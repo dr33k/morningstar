@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 import static com.seven.ije.models.enums.BookingStatus.VALID;
 
-@Service
+@Service("ticketService")
 @Transactional
 public class TicketService implements AppService<TicketRecord, AppRequest> {
     private TicketRepository ticketRepository;

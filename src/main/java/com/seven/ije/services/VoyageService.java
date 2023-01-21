@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import static com.seven.ije.models.enums.VoyageStatus.*;
 import static com.seven.ije.models.enums.LocationStatus.*;
 
-@Service
+@Service("voyageService")
 @Transactional
 public class VoyageService implements AppService <VoyageRecord, AppRequest> {
     private VoyageRepository voyageRepository;

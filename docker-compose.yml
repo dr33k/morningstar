@@ -18,7 +18,7 @@ services:
     environment:
       DB_USER: superdreek
       DB_PASSWORD: $PGPASSWORD
-      DB_URL: jdbc:postgresql://host.docker.internal/ije_db?stringtype=unspecified
+      DB_URL: $DB_URL_IJE
       PAYPAL_CLIENT_ID: AX8HRVY6TAr8V2xjpOKU2mzXlOAJfoaV7PrgT-cYJMJn4fYs55IfdMH9Zjk5BQSpMKQsJcm5Xo4Wxv5o
       PAYPAL_CLIENT_SECRET: EAsjH5csU7DRnJZEqNnI39jUzRu2nm4ZWMHX_xb4vXWwgeQNUjqQ_lYn8qMRbRiCwTSeZ7qQpW2yPuBa
       PAYPAL_MODE: sandbox

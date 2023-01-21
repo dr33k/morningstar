@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 import static com.seven.ije.models.enums.LocationStatus.*;
 
-@Service
+@Service("locationService")
 @Transactional
 public class LocationService implements AppService <LocationRecord, AppRequest> {
     @Autowired
