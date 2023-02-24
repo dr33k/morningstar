@@ -1,6 +1,6 @@
 package com.seven.ije.util;
 
-import com.seven.ije.models.responses.Response;
+import com.seven.ije.responses.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;

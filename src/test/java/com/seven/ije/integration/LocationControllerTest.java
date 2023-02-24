@@ -1,32 +1,11 @@
 package com.seven.ije.integration;
 
-import com.seven.ije.controllers.LocationController;
-import com.seven.ije.models.entities.Location;
-import com.seven.ije.models.entities.LocationId;
-import com.seven.ije.models.enums.StateCode;
-import com.seven.ije.models.requests.LocationCreateRequest;
-import com.seven.ije.repositories.LocationRepository;
-import com.seven.ije.services.LocationService;
+import com.seven.ije.location.LocationController;
 import config.TestConfiguration;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.regex.Matcher;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 
 @WebMvcTest(controllers = LocationController.class)
 @ContextConfiguration(classes = {TestConfiguration.class}, loader = AnnotationConfigContextLoader.class)
