@@ -6,12 +6,12 @@ import com.seven.ije.models.requests.BookingCreateRequest;
 import com.seven.ije.models.responses.Response;
 import com.seven.ije.services.BookingService;
 import com.seven.ije.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.validation.Valid;
 import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;

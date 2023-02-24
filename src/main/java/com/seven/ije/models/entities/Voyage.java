@@ -2,15 +2,13 @@ package com.seven.ije.models.entities;
 
 import com.seven.ije.models.enums.VoyageStatus;
 import com.seven.ije.models.records.VoyageRecord;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.beans.BeanUtils;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 

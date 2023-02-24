@@ -4,10 +4,10 @@ import com.seven.ije.models.requests.VoyageCreateRequest;
 import com.seven.ije.models.requests.VoyageUpdateRequest;
 import com.seven.ije.models.responses.Response;
 import com.seven.ije.services.VoyageService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;

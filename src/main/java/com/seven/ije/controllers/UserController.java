@@ -4,10 +4,10 @@ import com.seven.ije.models.records.UserRecord;
 import com.seven.ije.models.requests.UserUpdateRequest;
 import com.seven.ije.models.responses.Response;
 import com.seven.ije.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.Collections;
 import java.util.Set;
 import static com.seven.ije.util.Responder.ok;

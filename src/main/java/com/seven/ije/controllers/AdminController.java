@@ -9,10 +9,10 @@ import com.seven.ije.models.responses.Response;
 import com.seven.ije.services.BookingService;
 import com.seven.ije.services.TicketService;
 import com.seven.ije.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.Set;
 import java.util.UUID;
 import static com.seven.ije.util.Responder.ok;

@@ -4,6 +4,7 @@ import com.seven.ije.models.enums.BookingStatus;
 import com.seven.ije.models.enums.SeatType;
 import com.seven.ije.models.records.BookingRecord;
 import com.seven.ije.models.requests.BookingCreateRequest;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
@@ -11,7 +12,6 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.beans.BeanUtils;
 
-import javax.persistence.*;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 

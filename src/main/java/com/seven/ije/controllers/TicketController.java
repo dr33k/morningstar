@@ -4,6 +4,7 @@ import com.seven.ije.models.records.TicketRecord;
 import com.seven.ije.models.responses.Response;
 import com.seven.ije.services.BookingService;
 import com.seven.ije.services.TicketService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
 import java.util.Set;
 import java.util.UUID;
 

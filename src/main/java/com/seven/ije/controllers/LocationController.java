@@ -6,11 +6,11 @@ import com.seven.ije.models.requests.LocationUpdateRequest;
 import com.seven.ije.models.responses.Response;
 import com.seven.ije.services.LocationService;
 import com.seven.ije.util.Responder;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.Valid;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Set;
@@ -23,7 +23,7 @@ public class LocationController {
         this.locationService = locationService;
     }
 
-    @GetMapping
+    @GetMapping(produces = {"application/xml","application/json"})
     public ResponseEntity<Response> getAllResources() {
         return ok(locationService.getAll());
     }

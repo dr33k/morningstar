@@ -3,11 +3,10 @@ package com.seven.ije.models.entities;
 import com.seven.ije.models.enums.LocationStatus;
 import com.seven.ije.models.records.LocationRecord;
 import com.seven.ije.models.requests.LocationCreateRequest;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.beans.BeanUtils;
-
-import javax.persistence.*;
 
 @Entity
 @Table(name="location")

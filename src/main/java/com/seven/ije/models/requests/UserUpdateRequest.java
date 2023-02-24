@@ -2,12 +2,12 @@ package com.seven.ije.models.requests;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.seven.ije.models.enums.UserRole;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Past;
-import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 
 @Validated
