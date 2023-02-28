@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Set;
 import java.util.UUID;
 import static com.seven.ije.util.Responder.ok;
-
+import static com.seven.ije.util.AppConstants.VERSION;
 @RestController
-@RequestMapping("/administrator")
+@RequestMapping(VERSION+"/administrator")
 public class AdminController {
     TicketService ticketService;
     UserService userService;

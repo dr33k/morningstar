@@ -11,10 +11,12 @@ import org.springframework.web.servlet.ModelAndView;
 import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
+
+import static com.seven.ije.util.AppConstants.VERSION;
 import static com.seven.ije.util.Responder.ok;
 
 @RestController
-@RequestMapping("/booking")
+@RequestMapping(VERSION+"/booking")
 public class BookingController {
     BookingService bookingService;
     UserService userService;

@@ -12,10 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Set;
 
+import static com.seven.ije.util.AppConstants.VERSION;
 import static com.seven.ije.util.Responder.ok;
 
 @RestController
-@RequestMapping("/register")
+@RequestMapping(VERSION+"/register")
 public class RegistrationController{
     UserService userService;
     public RegistrationController(UserService userService) {

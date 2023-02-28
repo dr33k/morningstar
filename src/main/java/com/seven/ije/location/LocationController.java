@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.Set;
+
+import static com.seven.ije.util.AppConstants.VERSION;
 import static com.seven.ije.util.Responder.ok;
 @RestController
-@RequestMapping("/administrator/location")
+@RequestMapping(VERSION+"/administrator/location")
 public class LocationController {
     LocationService locationService;
     public LocationController(LocationService locationService) {

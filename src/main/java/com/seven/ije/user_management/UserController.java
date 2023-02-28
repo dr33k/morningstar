@@ -7,10 +7,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.Set;
+
+import static com.seven.ije.util.AppConstants.VERSION;
 import static com.seven.ije.util.Responder.ok;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping(VERSION+"/user")
 public class UserController {
     UserService userService;
     public UserController(UserService userService) {

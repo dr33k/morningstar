@@ -13,10 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.seven.ije.util.AppConstants.VERSION;
 import static com.seven.ije.util.Responder.ok;
 
 @RestController
-@RequestMapping("/ticket")
+@RequestMapping(VERSION+"/ticket")
 public class TicketController {
     TicketService ticketService;
     BookingService bookingService;
