@@ -106,7 +106,8 @@ public class BookingService implements AppService <BookingRecord, AppRequest> {
             bookingRepository.save(booking);
 
             return BookingRecord.copy(booking);
-        } catch (Exception ex) {
+        } catch (ResponseStatusException ex) {throw ex;}
+        catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR ,
                     "Reservation could not be created,please contact System Administrator. Why? " + ex.getMessage());
         }
@@ -154,7 +155,8 @@ public class BookingService implements AppService <BookingRecord, AppRequest> {
             bookingRepository.save(booking);
             return BookingRecord.copy(booking);
 
-        } catch (Exception ex) {
+        }catch (ResponseStatusException ex) {throw ex;}
+        catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR ,
                     "Reservation could not be updated, please contact System Administrator. Why? " + ex.getMessage());
         }

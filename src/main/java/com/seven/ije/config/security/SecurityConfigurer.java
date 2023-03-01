@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -34,9 +36,9 @@ public class SecurityConfigurer{
                 .csrf().disable()
                 .authorizeHttpRequests(auths->{
                     auths.
-                        requestMatchers(HttpMethod.GET, "/**","/register/**").permitAll()
-                       .requestMatchers("/administrator/**","/swagger-ui.html/**").hasRole("ADMIN")
-                       .requestMatchers("/user/**", "/booking/**", "/ticket/**","/payment/**").hasAnyRole("ADMIN", "PASSENGER", "OFFICER")
+                        requestMatchers(HttpMethod.GET, "/**","/v1/register/**").permitAll()
+                       .requestMatchers("/v1/administrator/**","/swagger-ui.html/**","/swagger-ui/**","/v3/api-docs/**").hasRole("ADMIN")
+                       .requestMatchers("/v1/user/**", "/v1/booking/**", "/v1/ticket/**","/v1/payment/**").hasAnyRole("ADMIN", "PASSENGER", "OFFICER")
                        .requestMatchers(HttpMethod.GET,"/dashboard/**","/locationDetails/**","/voyageDetails/**").hasAnyRole("ADMIN","PASSENGER","OFFICER")
                        .anyRequest().authenticated();
                         }
@@ -71,16 +73,11 @@ public class SecurityConfigurer{
     }
 
     @Bean
-    public UserDetailsManager configure(AuthenticationManagerBuilder auth) throws Exception {
-        JdbcUserDetailsManager manager = new JdbcUserDetailsManager();
-
-        AuthenticationManager authenticationManager = auth
-                .userDetailsService(userService)
-                .passwordEncoder(passwordEncoder)
-                .and().build();
-
-        manager.setAuthenticationManager(authenticationManager);
-        return manager;
+    public AuthenticationProvider userDetailsAuthProvider(){
+        DaoAuthenticationProvider a = new DaoAuthenticationProvider();
+        a.setUserDetailsService(userService);
+        a.setPasswordEncoder(passwordEncoder);
+        return a;
     }
 
 }

@@ -8,11 +8,11 @@ CREATE TABLE r_user (
         date_birth DATE NOT NULL,
         date_reg TIMESTAMP NOT NULL,
         date_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        role user_role NOT NULL DEFAULT 'PASSENGER',
-        is_account_non_expired BOOL NOT NULL DEFAULT TRUE,
-        is_account_non_locked BOOL NOT NULL DEFAULT TRUE,
-        is_credentials_non_expired BOOL NOT NULL DEFAULT TRUE,
-        is_enabled BOOL NOT NULL DEFAULT TRUE
+        role user_role DEFAULT 'PASSENGER',
+        is_account_non_expired BOOL DEFAULT TRUE,
+        is_account_non_locked BOOL DEFAULT TRUE,
+        is_credentials_non_expired BOOL DEFAULT TRUE,
+        is_enabled BOOL DEFAULT TRUE
 );
 
 CREATE TABLE location(
@@ -20,7 +20,7 @@ CREATE TABLE location(
         station_no VARCHAR(2) NOT NULL,
         station_name VARCHAR(80) NOT NULL,
         state_name VARCHAR(50) NOT NULL,
-        status location_status NOT NULL DEFAULT 'UNUSED',
+        status location_status DEFAULT 'UNUSED',
         PRIMARY KEY(state_code, station_no)
 );
 
@@ -32,8 +32,8 @@ CREATE TABLE voyage(
         arrival_location_station_no VARCHAR(2) NOT NULL,
         departure_date_time TIMESTAMP NOT NULL,
         arrival_date_time TIMESTAMP,
-        status voyage_status NOT NULL DEFAULT 'PENDING',
-        published BOOL NOT NULL DEFAULT FALSE,
+        status voyage_status DEFAULT 'PENDING',
+        published BOOL DEFAULT FALSE,
 
         CONSTRAINT departure_location_fk FOREIGN KEY(departure_location_state_code, departure_location_station_no)
         REFERENCES location(state_code, station_no) ON DELETE RESTRICT,
@@ -48,8 +48,8 @@ CREATE TABLE booking(
         passenger BIGINT NOT NULL ,
         booking_date_time TIMESTAMP NOT NULL,
         seat_type seat_type NOT NULL,
-        status booking_status NOT NULL DEFAULT 'VALID',
-        is_paid BOOL NOT NULL DEFAULT FALSE,
+        status booking_status DEFAULT 'VALID',
+        is_paid BOOL DEFAULT FALSE,
 
         CONSTRAINT voyage_no_fk FOREIGN KEY(voyage_no) REFERENCES voyage(voyage_no) ON DELETE RESTRICT,
         CONSTRAINT passenger_fk FOREIGN KEY(passenger) REFERENCES r_user(id) ON DELETE CASCADE

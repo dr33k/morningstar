@@ -69,7 +69,7 @@ public class LocationService implements AppService <LocationRecord, AppRequest> 
             locationId.setStateCode(locationCreateRequest.getStateCode());
 
             //Set the Station number from the Number of rows with the same StateCode in the database + 1
-            Integer stateCodeNumber = (locationRepository.countByLocationIdStateCode(locationId.getStateCode().name()) + 1);
+            Integer stateCodeNumber = (locationRepository.countByLocationIdStateCode(locationId.getStateCode()) + 1);
             String stationNo = leadingZeros(stateCodeNumber.toString() , 2);
             locationId.setStationNo(stationNo);
 
@@ -109,37 +109,40 @@ public class LocationService implements AppService <LocationRecord, AppRequest> 
             //If the property is not null and is a different value from before
             if (newStationName != null) {
                 if (newStationName != oldStationName) {
-                    location.setStationName(newStationName);
-                    modifyLocation(location, newStatus);
+                    modifyLocation(location, null, newStationName);
                 }
             }
-            else if (newStatus != null) {
-                final String UNSUPPORTED = "UNSUPPORTED OPERATION. Cannot be updated to anything but %s";
-                switch (oldStatus) {
-                    case USED -> {
-                        if (!newStatus.equals(DISABLED_USED))
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST , String.format(UNSUPPORTED , DISABLED_USED));
-                        modifyLocation(location , newStatus);
-                    }
-                    case DISABLED_USED -> {
-                        if (!newStatus.equals(USED))
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST , String.format(UNSUPPORTED , USED));
-                        modifyLocation(location , newStatus);
-                    }
-                    case DISABLED_UNUSED -> {
-                        if (!newStatus.equals(UNUSED))
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST , String.format(UNSUPPORTED , UNUSED));
-                        modifyLocation(location , newStatus);
-                    }
-                    case UNUSED -> {
-                        if (newStatus.equals(DISABLED_USED))
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST ,"UNSUPPORTED OPERATION. Use DISABLED_UNUSED instead");
-                        modifyLocation(location , newStatus);
-                    }
-                }
+            if (newStatus != null) {
+               if (!newStatus.equals(oldStatus)) {
+                   final String UNSUPPORTED = "UNSUPPORTED OPERATION. Cannot be updated to anything but %s";
+                   switch (oldStatus) {
+                       case USED -> {
+                           if (!newStatus.equals(DISABLED_USED))
+                               throw new ResponseStatusException(HttpStatus.BAD_REQUEST , String.format(UNSUPPORTED , DISABLED_USED));
+                           modifyLocation(location , newStatus , null);
+                       }
+                       case DISABLED_USED -> {
+                           if (!newStatus.equals(USED))
+                               throw new ResponseStatusException(HttpStatus.BAD_REQUEST , String.format(UNSUPPORTED , USED));
+                           modifyLocation(location , newStatus , null);
+                       }
+                       case DISABLED_UNUSED -> {
+                           if (!newStatus.equals(UNUSED))
+                               throw new ResponseStatusException(HttpStatus.BAD_REQUEST , String.format(UNSUPPORTED , UNUSED));
+                           modifyLocation(location , newStatus , null);
+                       }
+                       case UNUSED -> {
+                           if (newStatus == DISABLED_USED)
+                               throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "UNSUPPORTED OPERATION. Use DISABLED_UNUSED instead");
+                           modifyLocation(location , newStatus , null);
+                       }
+                   }
+               }
             }
             return LocationRecord.copy(location);
-        } catch (Exception ex) {
+        }
+        catch (ResponseStatusException ex) {throw ex;}
+        catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR ,
                     "Location could not be modified, please try again. Why? " + ex.getMessage() , ex);
         }
@@ -149,8 +152,9 @@ public class LocationService implements AppService <LocationRecord, AppRequest> 
         return "0".repeat(reqLength - s.length()).concat(s);
     }
 
-    public void modifyLocation(Location location, LocationStatus newStatus){
-        location.setStatus(newStatus);
+    public void modifyLocation(Location location, LocationStatus newStatus, String newStationName){
+        if(newStatus!=null)location.setStatus(newStatus);
+        if(newStationName!=null) location.setStationName(newStationName);
         locationRepository.save(location);
     }
 }

@@ -68,12 +68,15 @@ public class VoyageService implements AppService <VoyageRecord, AppRequest> {
             voyage.setDepartureLocation(l2);
 
             //Update locations
-            locationService.modifyLocation(l1 , USED);
-            locationService.modifyLocation(l2, USED);
+            locationService.modifyLocation(l1 , USED, null);
+            locationService.modifyLocation(l2, USED, null);
 
             //Set voyage status
             voyage.setStatus(VoyageStatus.PENDING);
-
+            //Set Departure date time
+            voyage.setDepartureDateTime(voyageCreateRequest.getDepartureDateTime());
+            //Set published status
+            voyage.setPublished(false);
             //Save
             voyageRepository.save(voyage);
 
@@ -129,7 +132,8 @@ public class VoyageService implements AppService <VoyageRecord, AppRequest> {
                 voyageRepository.save(voyage);
             }
             return VoyageRecord.copy(voyage);
-        } catch (Exception ex) {
+        }catch (ResponseStatusException ex) {throw ex;}
+        catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR ,
                     "Voyage could not be updated, please contact System Administrator. Why? " + ex.getMessage());
         }

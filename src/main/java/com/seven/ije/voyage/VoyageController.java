@@ -2,13 +2,18 @@ package com.seven.ije.voyage;
 
 import com.seven.ije.responses.Response;
 import jakarta.validation.Valid;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import static com.seven.ije.util.Responder.ok;
+
+import static com.seven.ije.util.Responder.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @RequestMapping("/administrator/voyage")
 public class VoyageController {
@@ -27,9 +32,13 @@ public class VoyageController {
         return ok(Set.of(voyageService.get(voyageNo)));
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<Response> createResource(@Valid @RequestBody VoyageCreateRequest request) {
-       return ok(Set.of(voyageService.create(request)));
+    @PostMapping(path="/create", produces = {"application/json" , "application/xml"}, consumes = {"application/json" , "application/xml"})
+    public EntityModel <ResponseEntity<Response>> createResource(@Valid @RequestBody VoyageCreateRequest request) {
+       Set<VoyageRecord> records = Set.of(voyageService.create(request));
+       EntityModel<ResponseEntity<Response>> entityModel = okHal(records);
+       Map <String, Object> refToInvocationObjectMap = Map.of("view_all",methodOn(this.getClass()).getAllResources());
+       createAndIncludeLinks(refToInvocationObjectMap, entityModel);
+       return entityModel;
     }
 
     @PutMapping("/update")

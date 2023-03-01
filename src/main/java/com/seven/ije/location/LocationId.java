@@ -20,8 +20,7 @@ import java.io.Serializable;
 @ToString
 public class LocationId implements Serializable {
 
-    @NotBlank(message = "Required field")
-    @Pattern(regexp = "^[A-Z]{4}$", message = "Incorrect format. Must be four(4) letters from A-Z (not a-z)")
+    @NotBlank(message = "Required field", groups = StateCode.class)
     @Enumerated(EnumType.STRING)
     private StateCode stateCode;
     @NotBlank(message = "Required field")

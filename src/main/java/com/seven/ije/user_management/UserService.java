@@ -59,7 +59,7 @@ public class UserService implements AppService <UserRecord, AppRequest>, UserDet
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
                             "This user does not exist or has been deleted"));
         }
-        return UserRecord.copy(user);
+        return UserRecord.copy(userFromDb);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class UserService implements AppService <UserRecord, AppRequest>, UserDet
     @Override
     public void delete(Object id) {//Only the user can deactivate their account
         User user = (User) userAuthentication.getPrincipal();
-        if (!user.getId().equals((Long) id)) throw new ResponseStatusException(HttpStatus.FORBIDDEN , "Account Breach");
+        if (!user.getEmail().equals((String) id)) throw new ResponseStatusException(HttpStatus.FORBIDDEN , "Account Breach");
 
         userRepository.deleteById((Long) id);
     }
@@ -134,14 +134,14 @@ public class UserService implements AppService <UserRecord, AppRequest>, UserDet
                 user.setDateBirth(userUpdateRequest.getDateBirth());
                 modified = (modified) ? modified : true;
             }
-            if (modified) {
-                userRepository.save(user);
-                return UserRecord.copy(user);
-            }
-        } catch (Exception ex) {
+            if (modified) userRepository.save(user);
+
+            return UserRecord.copy(user);
+
+        }catch (ResponseStatusException ex) {throw ex;}
+        catch (Exception ex) {
             throw new RuntimeException("User could not be modified, please contact System Administrator. Why? " + ex.getMessage());
         }
-        return null;
     }
 
     //For Admin
@@ -167,7 +167,8 @@ public class UserService implements AppService <UserRecord, AppRequest>, UserDet
                 userRepository.save(userReturned);
             }
             return UserRecord.copy(userReturned);
-        } catch (Exception ex) {
+        } catch (ResponseStatusException ex) {throw ex;}
+        catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR ,
                     "User could not be modified, please contact System Aministrator. Why? " + ex.getMessage());
         }
