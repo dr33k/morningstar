@@ -34,6 +34,7 @@ public class SecurityConfigurer{
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
+                .headers().frameOptions().sameOrigin().and()
                 .authorizeHttpRequests(auths->{
                     auths.
                         requestMatchers(HttpMethod.GET, "/**","/v1/register/**").permitAll()

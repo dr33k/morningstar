@@ -50,7 +50,7 @@ public class User implements Serializable, UserDetails {
     private ZonedDateTime dateReg;
 
     @UpdateTimestamp
-    @Column(nullable = false)
+    @Column
     private ZonedDateTime dateModified;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

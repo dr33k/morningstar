@@ -1,5 +1,6 @@
 package com.seven.ije.user_management;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.seven.ije.enums.UserRole;
 
 import java.time.LocalDate;
@@ -10,6 +11,7 @@ public record UserRecord(
         String lastName,
         String phoneNo,
         String email,
+        @JsonIgnore
         String password,
         LocalDate dateBirth,
         ZonedDateTime dateReg,
