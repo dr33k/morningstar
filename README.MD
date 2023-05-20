@@ -1,4 +1,4 @@
-The application seen above is a Railway Registration and Ticketing System.
+This application is a Registration and Ticketing System.
 For the time being there are two roles which can be assumed by a user
 
 PASSENGER (default assigned on registration)
@@ -12,15 +12,6 @@ Create VOYAGEs next to be used by BOOKINGs(reservations)
 
 Create BOOKINGs next to be used by USERs(passengers)
 
-The first user in the hosted application:https://dashboard.heroku.com/apps/railway-spring-app
-is John Doe with login credentials:
-
-
-email:admin@safuser.com
-
-password:software
-
-John Doe has ADMIN privileges.
 For each entity listed above, the 'status' field can be modified after creation.
 
 A LOCATION may be deleted if it is UNUSUED. Else, it can only be disabled when not required. THis tries to make the database immutable
