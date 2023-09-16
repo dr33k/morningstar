@@ -1,5 +1,6 @@
 package com.seven.ije.user_management;
 
+import com.seven.ije.config.security.JwtService;
 import com.seven.ije.enums.UserRole;
 import com.seven.ije.AppRequest;
 import com.seven.ije.AppService;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,14 +24,15 @@ import java.util.stream.Collectors;
 @Transactional
 public class UserService implements AppService <UserRecord, AppRequest>, UserDetailsService {
     private UserRepository userRepository;
-    private BCryptPasswordEncoder passwordEncoder;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
     private Authentication userAuthentication;
+    private JwtService jwtService;
 
     public UserService(UserRepository userRepository ,
                        BCryptPasswordEncoder passwordEncoder ,
                        Authentication userAuthentication) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+        this.bCryptPasswordEncoder = passwordEncoder;
         this.userAuthentication = userAuthentication;
     }
 
@@ -45,13 +48,14 @@ public class UserService implements AppService <UserRecord, AppRequest>, UserDet
     }
 
     //For Both
+    public UserRecord get(){ return get(null);}
     @Override
     public UserRecord get(Object email) {
-        User user = (User) userAuthentication.getPrincipal();
+        String id = String.valueOf(userAuthentication.getPrincipal());
 
         User userFromDb;
         if (email == null) { //Signifies account owner access.
-            userFromDb = userRepository.findById(user.getId())
+            userFromDb = userRepository.findByEmail(id)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
                             "This user does not exist or has been deleted"));
         } else {  // Signifies admin access. Admin can fetch any user without restrictions
@@ -77,7 +81,7 @@ public class UserService implements AppService <UserRecord, AppRequest>, UserDet
             user.setRole(UserRole.PASSENGER);
 
             //Encode password
-            user.setPassword(passwordEncoder.encode(userCreateRequest.getPassword()));
+            user.setPassword(bCryptPasswordEncoder.encode(userCreateRequest.getPassword()));
             //Save
             userRepository.save(user);
 
@@ -86,6 +90,20 @@ public class UserService implements AppService <UserRecord, AppRequest>, UserDet
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR ,
                     "User could not be created, please try again later. Why? " + ex.getMessage());
         }
+    }
+
+    public UserDTO register(AppRequest request){
+        UserRecord record = create(request);
+        String token = jwtService.generateToken(record.email(),
+                Map.of("role", record.role().name(),
+                            "privileges", record.role().privileges));
+
+        return UserDTO.builder().data(record).token(token).build();
+    }
+    public UserDTO login (User user){
+        String token = jwtService.generateToken(user.getUsername(),Map.of("role", user.getRole().name(),
+                "privileges", user.getRole().privileges));
+        return UserDTO.builder().data(UserRecord.copy(user)).token(token).build();
     }
 
     //For User
@@ -101,38 +119,32 @@ public class UserService implements AppService <UserRecord, AppRequest>, UserDet
     @Override
     public UserRecord update(AppRequest request) {
         try {
-            //Retrieve indicated User object from the Authentication principal
-            User user = (User) userAuthentication.getPrincipal();
             UserUpdateRequest userUpdateRequest = (UserUpdateRequest) request;
-            String email = userUpdateRequest.getEmail();
-
-            if(email == null)
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "Please identify the user");
-            if (!userRepository.existsByEmail(email))
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND , "User account could not be found");
+            User user = userRepository.findByEmail(userUpdateRequest.getEmail())
+                    .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "User account could not be found"));
 
             Boolean modified = false;
 
             //If the property is not null
             if (userUpdateRequest.getFirstName() != null) {
                 user.setFirstName(userUpdateRequest.getFirstName());
-                modified = (modified) ? modified : true;
+                modified = true;
             }
             if (userUpdateRequest.getLastName() != null) {
                 user.setLastName(userUpdateRequest.getLastName());
-                modified = (modified) ? modified : true;
+                modified = true;
             }
             if (userUpdateRequest.getPassword() != null) {
                 user.setPassword(userUpdateRequest.getPassword());
-                modified = (modified) ? modified : true;
+                modified = true;
             }
             if (userUpdateRequest.getPhoneNo() != null) {
                 user.setPhoneNo(userUpdateRequest.getPhoneNo());
-                modified = (modified) ? modified : true;
+                modified = true;
             }
             if (userUpdateRequest.getDateBirth() != null) {
                 user.setDateBirth(userUpdateRequest.getDateBirth());
-                modified = (modified) ? modified : true;
+                modified = true;
             }
             if (modified) userRepository.save(user);
 
@@ -148,11 +160,8 @@ public class UserService implements AppService <UserRecord, AppRequest>, UserDet
     public UserRecord updateForAdmin(AppRequest request) {
         try {
             UserUpdateRequest userUpdateRequest = (UserUpdateRequest) request;
-            String email = userUpdateRequest.getEmail();
-            if(email == null)
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "Please identify the user");
             //Retrieve indicated User Object from the Database
-            User userReturned = userRepository.findByEmail(email)
+            User userReturned = userRepository.findByEmail(userUpdateRequest.email)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
                             "This user does not exist or has been deleted"));
 
@@ -163,9 +172,8 @@ public class UserService implements AppService <UserRecord, AppRequest>, UserDet
                 userReturned.setRole(userUpdateRequest.getRole());
                 modified = true;
             }
-            if (modified) {
-                userRepository.save(userReturned);
-            }
+            if (modified) userRepository.save(userReturned);
+
             return UserRecord.copy(userReturned);
         } catch (ResponseStatusException ex) {throw ex;}
         catch (Exception ex) {

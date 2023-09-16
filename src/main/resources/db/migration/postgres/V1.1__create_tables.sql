@@ -16,7 +16,7 @@ CREATE TABLE r_user (
 );
 
 CREATE TABLE location(
-        state_code state_code NOT NULL,
+        state_code CHAR(6) NOT NULL,
         station_no VARCHAR(2) NOT NULL,
         station_name VARCHAR(80) NOT NULL,
         state_name VARCHAR(50) NOT NULL,
@@ -26,9 +26,9 @@ CREATE TABLE location(
 
 CREATE TABLE voyage(
         voyage_no UUID NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
-        departure_location_state_code state_code NOT NULL,
+        departure_location_state_code CHAR(6) NOT NULL,
         departure_location_station_no VARCHAR(2) NOT NULL,
-        arrival_location_state_code state_code NOT NULL,
+        arrival_location_state_code CHAR(6) NOT NULL,
         arrival_location_station_no VARCHAR(2) NOT NULL,
         departure_date_time TIMESTAMP NOT NULL,
         arrival_date_time TIMESTAMP,

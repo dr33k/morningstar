@@ -19,8 +19,17 @@ import java.util.stream.Collectors;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 public final class Responder {
-    public static ResponseEntity <Response> ok(Set <? extends Record> records) {
+    public static ResponseEntity <Response> ok(Object records) {
         return ResponseEntity.ok(Response.builder()
+                .data(records)
+                .isError(false)
+                .status(HttpStatus.OK)
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
+    public static ResponseEntity <Response> ok(Object records, String token) {
+        return ResponseEntity.ok(Response.builder()
+                .token(token)
                 .data(records)
                 .isError(false)
                 .status(HttpStatus.OK)
@@ -40,6 +49,7 @@ public final class Responder {
     public static ResponseEntity <Response> notFound(String message) {
         return ResponseEntity.notFound().build();
     }
+    public static ResponseEntity <Response> noContent() {return ResponseEntity.noContent().build();}
     public static ResponseEntity <Response> forbidden(String message) {
         return ResponseEntity.status(403).body(Response.builder()
                 .message(message)
@@ -66,7 +76,7 @@ public final class Responder {
                 .build());
     }
 
-    public static ResponseEntity<Response> created(Set <? extends Record> records, String location) {
+    public static ResponseEntity<Response> created(Object records, String location) {
         URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path(location).buildAndExpand().toUri();
         return ResponseEntity.status(201).location(uri).body(
                 Response.builder()
@@ -76,11 +86,11 @@ public final class Responder {
                 .timestamp(LocalDateTime.now())
                 .build());
     }
-    public static EntityModel<ResponseEntity<Response>> okHal(Set <? extends Record> records){
+    public static EntityModel<ResponseEntity<Response>> okHal(Object userData){
         EntityModel<ResponseEntity<Response>> entityModel = EntityModel.of(
                 ResponseEntity.ok(
                         Response.builder()
-                                .data(records)
+                                .data(userData)
                                 .isError(false)
                                 .status(HttpStatus.OK)
                                 .timestamp(LocalDateTime.now())
@@ -89,7 +99,7 @@ public final class Responder {
         );
         return entityModel;
     }
-    public static EntityModel<ResponseEntity<Response>> createdHal(Set <? extends Record> records, String location){
+    public static EntityModel<ResponseEntity<Response>> createdHal(Object records, String location){
         URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path(location).buildAndExpand().toUri();
 
         EntityModel<ResponseEntity<Response>> entityModel = EntityModel.of(

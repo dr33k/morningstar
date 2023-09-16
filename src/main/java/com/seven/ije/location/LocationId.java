@@ -20,10 +20,10 @@ import java.io.Serializable;
 @ToString
 public class LocationId implements Serializable {
 
-    @NotBlank(message = "Required field", groups = StateCode.class)
+    @NotBlank(message = "The state code is a required field", groups = StateCode.class)
     @Enumerated(EnumType.STRING)
     private StateCode stateCode;
-    @NotBlank(message = "Required field")
+    @NotBlank(message = "The station number is a required field")
     @Pattern(regexp = "^[0-9]{2}$",message = "Incorrect format. Must be a two(2) digit number: 01,02 ...")
     private String stationNo;
 

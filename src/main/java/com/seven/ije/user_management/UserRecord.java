@@ -1,11 +1,12 @@
 package com.seven.ije.user_management;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.seven.ije.enums.UserRole;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-
+@JsonInclude(value = JsonInclude.Include.NON_NULL)
 public record UserRecord(
         String firstName,
         String lastName,

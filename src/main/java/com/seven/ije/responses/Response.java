@@ -12,9 +12,10 @@ import java.util.Set;
 @Builder
 @JsonInclude
 public class Response {
-    private Set<? extends Record> data;
+    private Object data;
     private HttpStatus status;
     private Boolean isError;
     private String message;
     private LocalDateTime timestamp;
+    private String token;
 }

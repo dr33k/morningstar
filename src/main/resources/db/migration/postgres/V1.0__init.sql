@@ -31,22 +31,7 @@ BEGIN
                      THEN  CREATE TYPE location_status AS ENUM('UNUSED','USED','DISABLED_UNUSED','DISABLED_USED');
                      END IF;
 
-      SELECT TRUE FROM pg_type WHERE typname = 'state_code' INTO result;
-                           IF (result IS NOT TRUE)
-                           THEN  CREATE TYPE state_code AS
-                           ENUM('ABIA',
-                           'ADAM',
-                           'AKIB','ANAM','BAUCH','BAYE',
-                           'BENU','BORN','CROS', 'DELT',
-                           'EDO_','EKIT','ENUG',
-                           'GOMB','IMO_','JIGA','KADU',
-                           'KANO','KATS','KEBB','KOGI',
-                           'KWAR','LAGO','NASA','NIGE',
-                           'OGUN','ONDO','OSUN','OYO_',
-                           'PLAT','RIVE','SOKO','TARA',
-                           'YOBE','ZAMF','ABUJ');
-                           END IF;
-     RETURN result;
+   RETURN result;
 END;
 $$;
 
