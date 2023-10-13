@@ -4,10 +4,7 @@ services:
     image: postgres:13-alpine
     ports:
       - 5432:5432
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: $DB_PASSWORD
-      POSTGRES_DB: ije_db
+    env_file: .env
 
   api:
     build:
@@ -15,9 +12,4 @@ services:
       dockerfile: Dockerfile
     ports:
       - 8080:8080
-    environment:
-      SPRING_PROFILES_ACTIVE: dev
-      DB_USER: postgres
-      DB_PASSWORD: $DB_PASSWORD
-      DB_URL: $DB_URL
-      JWT_SIGNING_KEY: $JWT_SIGNING_KEY
+    env_file: .env
