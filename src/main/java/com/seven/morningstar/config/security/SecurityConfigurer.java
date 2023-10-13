@@ -4,6 +4,7 @@ import com.seven.morningstar.user_management.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -29,7 +30,10 @@ public class SecurityConfigurer{
         http
                 .csrf().csrfTokenRepository(new HttpSessionCsrfTokenRepository())
                 .and()
-                .authorizeHttpRequests().anyRequest().permitAll()
+                .authorizeHttpRequests()
+                .requestMatchers(HttpMethod.GET, "/swagger-ui/**","/webjars/**").permitAll()
+                .anyRequest().authenticated()
+
 
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)

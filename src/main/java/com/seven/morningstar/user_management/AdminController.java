@@ -1,5 +1,6 @@
 package com.seven.morningstar.user_management;
 
+import com.seven.morningstar.config.security.Authorize;
 import com.seven.morningstar.ticket.TicketRecord;
 import com.seven.morningstar.booking.BookingUpdateRequest;
 import com.seven.morningstar.responses.Response;
@@ -37,6 +38,7 @@ public class AdminController {
         return ok(Set.of(ticketService.get(bookingNo)));
     }
 
+    @Authorize(roles = "ADMIN")
     @GetMapping("/passengers")
     public ResponseEntity <Response> getAllUsers() {
         return ok(userService.getAll());
