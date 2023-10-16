@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.annotation.ApplicationScope;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
@@ -16,6 +17,7 @@ import static com.seven.morningstar.enums.LocationStatus.*;
 
 @Service("locationService")
 @Transactional
+@ApplicationScope
 public class LocationService implements AppService <LocationRecord, AppRequest> {
     @Autowired
     LocationRepository locationRepository;

@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.annotation.ApplicationScope;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 
 @Service("userService")
 @Transactional
+@ApplicationScope
 public class UserService implements AppService <UserRecord, AppRequest>, UserDetailsService {
     private UserRepository userRepository;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -30,10 +32,12 @@ public class UserService implements AppService <UserRecord, AppRequest>, UserDet
 
     public UserService(UserRepository userRepository ,
                        BCryptPasswordEncoder passwordEncoder ,
-                       Authentication userAuthentication) {
+                       Authentication userAuthentication,
+                       JwtService jwtService) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = passwordEncoder;
         this.userAuthentication = userAuthentication;
+        this.jwtService = jwtService;
     }
 
     //For Admin

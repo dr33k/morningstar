@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.ApplicationScope;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -14,8 +15,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-@Service
+@Service("jwtService")
 @RequiredArgsConstructor
+@ApplicationScope
 public class JwtService {
 
     private final Environment environment;

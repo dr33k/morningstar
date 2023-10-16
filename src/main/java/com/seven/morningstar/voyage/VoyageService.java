@@ -8,6 +8,7 @@ import com.seven.morningstar.location.LocationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.annotation.ApplicationScope;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.ZonedDateTime;
@@ -19,6 +20,7 @@ import static com.seven.morningstar.enums.LocationStatus.*;
 
 @Service("voyageService")
 @Transactional
+@ApplicationScope
 public class VoyageService implements AppService <VoyageRecord, AppRequest> {
     private VoyageRepository voyageRepository;
     private LocationService locationService;

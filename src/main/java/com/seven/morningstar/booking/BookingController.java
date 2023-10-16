@@ -1,9 +1,12 @@
 package com.seven.morningstar.booking;
 
+import com.seven.morningstar.config.security.Authorize;
 import com.seven.morningstar.responses.Response;
 import com.seven.morningstar.user_management.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -16,7 +19,8 @@ import static com.seven.morningstar.util.AppConstants.VERSION;
 import static com.seven.morningstar.util.Responder.ok;
 
 @RestController
-@RequestMapping(VERSION+"/booking")
+@RequestMapping(value = VERSION+"/booking", produces = MediaType.APPLICATION_JSON_VALUE)
+@SecurityRequirement(name="jwtAuth")
 public class BookingController {
     BookingService bookingService;
     UserService userService;
@@ -31,6 +35,7 @@ public class BookingController {
     }
 
     @GetMapping
+    @Authorize(roles = "ADMIN")
     public ResponseEntity <Response> getAllResources() {
         Set <BookingRecord> bookingRecords = bookingService.getAllByPassenger(null);
         return ok(bookingRecords);

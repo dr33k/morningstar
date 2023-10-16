@@ -6,6 +6,7 @@ import com.seven.morningstar.booking.BookingUpdateRequest;
 import com.seven.morningstar.responses.Response;
 import com.seven.morningstar.booking.BookingService;
 import com.seven.morningstar.ticket.TicketService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import static com.seven.morningstar.util.Responder.ok;
 import static com.seven.morningstar.util.AppConstants.VERSION;
 @RestController
 @RequestMapping(VERSION+"/administrator")
+@SecurityRequirement(name="jwtAuth")
 public class AdminController {
     TicketService ticketService;
     UserService userService;
