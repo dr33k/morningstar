@@ -8,10 +8,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 
@@ -41,12 +43,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 
                             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                        }
+                        } else logger.info("INVALID DATE");
                     }
                 } catch (Exception exception) {
-                    filterChain.doFilter(request, response);
+                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, exception.getMessage());
                 }
             }
+            else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
         filterChain.doFilter(request, response);
     }

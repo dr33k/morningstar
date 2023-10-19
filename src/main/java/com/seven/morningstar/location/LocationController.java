@@ -3,17 +3,13 @@ package com.seven.morningstar.location;
 import com.seven.morningstar.enums.StateCode;
 import com.seven.morningstar.responses.Response;
 import jakarta.validation.Valid;
-import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-
 import static com.seven.morningstar.util.AppConstants.VERSION;
-import static com.seven.morningstar.util.Responder.*;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import static com.seven.morningstar.util.Responder.created;
+import static com.seven.morningstar.util.Responder.ok;
 
 @RestController
 @RequestMapping(VERSION+"/administrator/location")
@@ -23,30 +19,27 @@ public class LocationController {
         this.locationService = locationService;
     }
 
-    @GetMapping(produces = {"application/xml","application/json"})
+    @GetMapping
     public ResponseEntity<Response> getAllResources() {
         return ok(locationService.getAll());
     }
     @GetMapping("/search")
     public ResponseEntity<Response> getResource( @Valid @RequestParam StateCode stateCode, @Valid @RequestParam String stationNo) {
-        return ok(Set.of(locationService.get(new LocationId(stateCode, stationNo))));
+        return ok(locationService.get(new LocationId(stateCode, stationNo)));
     }
     @PostMapping("/create")
-    public EntityModel <ResponseEntity<Response>> createResource(@Valid @RequestBody LocationCreateRequest request) {
-        Set<LocationRecord> records = Set.of(locationService.create(request));
-        EntityModel<ResponseEntity<Response>> entityModel = createdHal(records,"/location");
-        Map <String, Object> refToInvocationObjectMap = Map.of("view_all",methodOn(this.getClass()).getAllResources());
-        createAndIncludeLinks(refToInvocationObjectMap, entityModel);
-        return entityModel;
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Response> createResource(@Valid @RequestBody LocationCreateRequest request) {
+        return created(locationService.create(request), VERSION+"/administrator/location");
     }
     @PutMapping("/update")
     public ResponseEntity<Response> updateResource( @Valid @RequestParam StateCode stateCode, @Valid @RequestParam String stationNo, @Valid @RequestBody LocationUpdateRequest request) {
         request.setLocationId(new LocationId(stateCode, stationNo));
-        return ok(Set.of(locationService.update(request)));
+        return ok(locationService.update(request));
     }
     @DeleteMapping("/delete")
     public ResponseEntity<Response> deleteResource(@Valid @RequestParam StateCode stateCode, @Valid @RequestParam String stationNo) {
         locationService.delete(new LocationId(stateCode, stationNo));
-       return ok(Collections.emptySet());
+       return ok(null);
     }
 }

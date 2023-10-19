@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 @Data
 @ToString
 @NoArgsConstructor
+
 public class User implements Serializable, UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -66,6 +67,16 @@ public class User implements Serializable, UserDetails {
     private Boolean isCredentialsNonExpired = true;
     @Column(nullable = false)
     private Boolean isEnabled = true;
+
+    public User(String firstName, String lastName, String phoneNo, String email, String password, LocalDate dateBirth, UserRole role) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNo = phoneNo;
+        this.email = email;
+        this.password = password;
+        this.dateBirth = dateBirth;
+        this.role = role;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
