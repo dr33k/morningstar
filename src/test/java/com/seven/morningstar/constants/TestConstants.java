@@ -14,7 +14,7 @@ public interface TestConstants {
     String TOKEN = "Bearer token";
     Claims ADMINCLAIMS = new DefaultClaims(
             Map.of(
-                    "sub", "user",
+                    "sub", "admin",
                     "role", "ADMIN",
                     "privileges", List.of(
                             "user:c", "user:r", "user:u", "user:d"
@@ -23,7 +23,19 @@ public interface TestConstants {
             )
     );
 
+    Claims USERCLAIMS = new DefaultClaims(
+            Map.of(
+                    "sub", "user",
+                    "role", "PASSENGER",
+                    "privileges", List.of(
+                            "user:c", "user:r", "user:u", "user:d"
+                    ),
+                    "exp", new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)
+            )
+    );
+
     User ADMIN = new User("John", "Doe", "phone", "admin@seven.com", "password", LocalDate.of(1000, 1, 1), UserRole.ADMIN);
+    User PASSENGER = new User("John", "Doe", "phone", "admin@seven.com", "password", LocalDate.of(1000, 1, 1), UserRole.PASSENGER);
 
 
 }
