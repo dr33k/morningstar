@@ -43,18 +43,18 @@ public class LocationControllerTest {
     @BeforeEach
     void init(){
         webAppContextSetup(context);
-        Mockito.when(jwtService.extractClaims(Mockito.anyString())).thenReturn(ADMINCLAIMS);
         Mockito.when(jwtService.isTokenValid(ADMINCLAIMS)).thenReturn(true);
         Mockito.when(userService.loadUserByUsername(Mockito.anyString())).thenReturn(ADMIN);
     }
 
     @Test
-    void testShouldCreateLocation(){
+    void testShouldCreateLocationIfAdminUser(){
         final String STATION_NAME = "My First Abia Station";
         LocationCreateRequest request = new LocationCreateRequest();
         request.setStateCode(StateCode.ABIA);
         request.setStationName(STATION_NAME);
 
+        Mockito.when(jwtService.extractClaims(Mockito.anyString())).thenReturn(ADMINCLAIMS);
         Mockito.when(locationService.create(request)).thenReturn(null);
 
         given()
@@ -64,5 +64,23 @@ public class LocationControllerTest {
                 .when()
                 .post(VERSION+"/administrator/location/create")
                 .then().statusCode(201);
+    }
+    @Test
+    void testShouldForbidCreateLocationIfNotAdminUser(){
+        final String STATION_NAME = "My First Abia Station";
+        LocationCreateRequest request = new LocationCreateRequest();
+        request.setStateCode(StateCode.ABIA);
+        request.setStationName(STATION_NAME);
+
+        Mockito.when(jwtService.extractClaims(Mockito.anyString())).thenReturn(USERCLAIMS);
+        Mockito.when(locationService.create(request)).thenReturn(null);
+
+        given()
+                .header("Authorization", TOKEN)
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post(VERSION+"/administrator/location/create")
+                .then().statusCode(403);
     }
 }

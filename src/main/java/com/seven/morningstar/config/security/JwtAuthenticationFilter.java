@@ -43,7 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 
                             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                        } else logger.info("INVALID DATE");
+                        }
                     }
                 } catch (Exception exception) {
                     throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, exception.getMessage());
