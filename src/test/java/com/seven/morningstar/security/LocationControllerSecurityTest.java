@@ -31,7 +31,7 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.webAppContextSetu
 @WebMvcTest(controllers = LocationController.class)
 @Import({SecurityConfigurer.class, BCryptEncoder.class, JwtAuthenticationFilter.class})
 @ActiveProfiles("test")
-public class LocationControllerTest {
+public class LocationControllerSecurityTest {
     @MockBean
     LocationService locationService;
     @MockBean
