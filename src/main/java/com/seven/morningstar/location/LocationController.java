@@ -12,7 +12,8 @@ import static com.seven.morningstar.util.Responder.created;
 import static com.seven.morningstar.util.Responder.ok;
 
 @RestController
-@RequestMapping(VERSION+"/administrator/location")
+@RequestMapping(value = VERSION+"/administrator/location", consumes = "application/json", produces = "application/json")
+
 public class LocationController {
     LocationService locationService;
     public LocationController(LocationService locationService) {
@@ -20,10 +21,13 @@ public class LocationController {
     }
 
     @GetMapping
+    @PreAuthorize("")
     public ResponseEntity<Response> getAllResources() {
         return ok(locationService.getAll());
     }
+
     @GetMapping("/search")
+    @PreAuthorize("")
     public ResponseEntity<Response> getResource( @Valid @RequestParam StateCode stateCode, @Valid @RequestParam String stationNo) {
         return ok(locationService.get(new LocationId(stateCode, stationNo)));
     }
@@ -33,13 +37,15 @@ public class LocationController {
         return created(locationService.create(request), VERSION+"/administrator/location");
     }
     @PutMapping("/update")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Response> updateResource( @Valid @RequestParam StateCode stateCode, @Valid @RequestParam String stationNo, @Valid @RequestBody LocationUpdateRequest request) {
         request.setLocationId(new LocationId(stateCode, stationNo));
         return ok(locationService.update(request));
     }
     @DeleteMapping("/delete")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Response> deleteResource(@Valid @RequestParam StateCode stateCode, @Valid @RequestParam String stationNo) {
         locationService.delete(new LocationId(stateCode, stationNo));
-       return ok(null);
+        return ok(null);
     }
 }

@@ -6,6 +6,7 @@ import com.seven.morningstar.location.LocationController;
 import com.seven.morningstar.location.LocationId;
 import com.seven.morningstar.location.LocationRecord;
 import com.seven.morningstar.location.LocationService;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,8 +20,6 @@ import java.util.Collections;
 
 import static com.seven.morningstar.util.AppConstants.VERSION;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.*;
-
-
 
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
@@ -38,24 +37,25 @@ public class LocationControllerTest {
     @Test
     void testShouldGetAllLocations(){
         Mockito.when(locationService.getAll()).thenReturn(Collections.emptySet());
-        when().get(VERSION+"/administrator/location").then().statusCode(200);
+        given().contentType("application/json")
+                .when().get(VERSION+"/administrator/location").then().statusCode(200);
     }
 
     @Test
-    void testshouldGetLocation(){
+    void testShouldGetLocation(){
         LocationId id = new LocationId(StateCode.ABUJ, "01");
         LocationRecord result = testlocationRecord(id);
-        Mockito.when(locationService.get(id)).thenReturn(result);
+        Mockito.when(locationService.get(Mockito.any(LocationId.class))).thenReturn(result);
 
         given()
                 .param("stateCode", id.getStateCode())
                 .param("stationNo", id.getStationNo())
+                .contentType("application/json")
                 .when()
                 .get(VERSION+"/administrator/location/search")
                 .then()
-                .statusCode(200);
-//                .body("$.data.id.stateCode", equalTo(id.getStateCode()));
-
+                .statusCode(200)
+                .body("data.locationId.stateCode", Matchers.equalTo( id.getStateCode().name()));
     }
 
     private LocationRecord testlocationRecord(LocationId id){

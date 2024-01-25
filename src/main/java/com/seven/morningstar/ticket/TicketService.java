@@ -3,6 +3,7 @@ package com.seven.morningstar.ticket;
 import com.seven.morningstar.booking.Booking;
 import com.seven.morningstar.booking.BookingService;
 import com.seven.morningstar.AppService;
+import com.seven.morningstar.enums.BookingUpdateType;
 import com.seven.morningstar.user_management.User;
 import com.seven.morningstar.enums.UserRole;
 import com.seven.morningstar.voyage.VoyageRecord;
@@ -90,7 +91,7 @@ public class TicketService implements AppService <TicketRecord, AppRequest> {
                 ticket.setExpiryDateTime(reservationDetails.getVoyage().getDepartureDateTime().plusDays(1L));
                 //Save Booking and update reservationDetails
                 this.reservationDetails = Booking.of(
-                        bookingService.userUpdate(this.reservationDetails.getBookingNo(),false, true));
+                        bookingService.userUpdate(this.reservationDetails.getBookingNo(), BookingUpdateType.PAID));
                 //Save Ticket
                 ticketRepository.save(ticket);
                 return TicketRecord.copy(ticket);

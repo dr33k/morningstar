@@ -1,6 +1,7 @@
 package com.seven.morningstar.booking;
 
 import com.seven.morningstar.config.security.Authorize;
+import com.seven.morningstar.enums.BookingUpdateType;
 import com.seven.morningstar.responses.Response;
 import com.seven.morningstar.user_management.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -56,7 +57,7 @@ public class BookingController {
 
     @PatchMapping("/cancel")
     public ResponseEntity <Response> cancel(@RequestParam(name = "id") UUID bookingNo) {
-        BookingRecord bookingRecord = bookingService.userUpdate(bookingNo , true , false);
+        BookingRecord bookingRecord = bookingService.userUpdate(bookingNo , BookingUpdateType.CANCEL);
         return ok(Set.of(bookingRecord));
     }
 

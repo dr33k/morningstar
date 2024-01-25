@@ -1,6 +1,7 @@
 package com.seven.morningstar.booking;
 
 import com.seven.morningstar.enums.BookingStatus;
+import com.seven.morningstar.enums.BookingUpdateType;
 import com.seven.morningstar.enums.UserRole;
 import com.seven.morningstar.enums.VoyageStatus;
 import com.seven.morningstar.AppService;
@@ -162,17 +163,17 @@ public class BookingService implements AppService <BookingRecord, AppRequest> {
         }
     }
     //For User
-    public BookingRecord userUpdate(UUID bookingNo , Boolean cancel , Boolean isPaid) {
+    public BookingRecord userUpdate(UUID bookingNo , BookingUpdateType type) {
         User user = (User) userAuthentication.getPrincipal();
         //Retrieve indicated Booking Object from the Database
         Booking booking = bookingRepository.findByPassengerIdAndBookingNo(user.getId() , bookingNo)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND ,
                         "This reservation does not exist or has been deleted"));
 
-        if (cancel) {
+        if (type == BookingUpdateType.CANCEL) {
             booking.setStatus(CANCELLED);
             bookingRepository.save(booking);
-        } else if (isPaid) {
+        } else if (type ==BookingUpdateType.PAID) {
             booking.setIsPaid(true);
             bookingRepository.save(booking);
         }
