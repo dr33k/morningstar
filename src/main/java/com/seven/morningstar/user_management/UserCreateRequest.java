@@ -22,10 +22,10 @@ public class UserCreateRequest implements AppRequest {
     @Pattern(regexp = "^[A-Za-z'\\-]{2,30}$",message = "Name must be at least 2 characters long")
     private String lastName;
     @NotBlank(message = "Required field")
-    @Pattern(regexp = "^[+-][0-9]{10,14}$",message = "Name must be at least 2 characters long")
+    @Pattern(regexp = "^[+-][0-9]{10,14}$",message = "Invalid phone number format. Include country code")
     private String phoneNo;
     @NotBlank(message = "Required field")
-    @Email(regexp = "[A-Za-z0-9\\-]{2,}@[A-Za-z'\\-]{2,}\\.[A-Za-z'\\-]{2,}", message = "Invalid email format")
+    @Email(regexp = "^[A-Za-z0-9\\-]{2,}@[A-Za-z\\-]{2,}\\..{2,}$", message = "Invalid email format")
     private String email;
     @NotBlank(message = "Required field")
     private String password;

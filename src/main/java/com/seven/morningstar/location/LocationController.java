@@ -8,11 +8,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import static com.seven.morningstar.util.AppConstants.VERSION;
-import static com.seven.morningstar.util.Responder.created;
-import static com.seven.morningstar.util.Responder.ok;
+import static com.seven.morningstar.util.Responder.*;
 
 @RestController
-@RequestMapping(value = VERSION+"/administrator/location", consumes = "application/json", produces = "application/json")
+@RequestMapping(value = VERSION+"/location", consumes = "application/json", produces = "application/json")
 
 public class LocationController {
     LocationService locationService;
@@ -21,13 +20,13 @@ public class LocationController {
     }
 
     @GetMapping
-    @PreAuthorize("")
+    @PreAuthorize("hasAuthority('location:r')")
     public ResponseEntity<Response> getAllResources() {
         return ok(locationService.getAll());
     }
 
     @GetMapping("/search")
-    @PreAuthorize("")
+    @PreAuthorize("hasAuthority('location:r')")
     public ResponseEntity<Response> getResource( @Valid @RequestParam StateCode stateCode, @Valid @RequestParam String stationNo) {
         return ok(locationService.get(new LocationId(stateCode, stationNo)));
     }
@@ -46,6 +45,6 @@ public class LocationController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Response> deleteResource(@Valid @RequestParam StateCode stateCode, @Valid @RequestParam String stationNo) {
         locationService.delete(new LocationId(stateCode, stationNo));
-        return ok(null);
+        return noContent();
     }
 }

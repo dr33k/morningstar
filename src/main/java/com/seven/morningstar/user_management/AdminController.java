@@ -1,23 +1,25 @@
 package com.seven.morningstar.user_management;
 
-import com.seven.morningstar.config.security.Authorize;
-import com.seven.morningstar.ticket.TicketRecord;
+import com.seven.morningstar.booking.BookingService;
 import com.seven.morningstar.booking.BookingUpdateRequest;
 import com.seven.morningstar.responses.Response;
-import com.seven.morningstar.booking.BookingService;
+import com.seven.morningstar.ticket.TicketRecord;
 import com.seven.morningstar.ticket.TicketService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
 import java.util.UUID;
-import static com.seven.morningstar.util.Responder.ok;
+
 import static com.seven.morningstar.util.AppConstants.VERSION;
+import static com.seven.morningstar.util.Responder.ok;
 @RestController
 @RequestMapping(VERSION+"/administrator")
 @SecurityRequirement(name="jwtAuth")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
     TicketService ticketService;
     UserService userService;
@@ -40,7 +42,6 @@ public class AdminController {
         return ok(Set.of(ticketService.get(bookingNo)));
     }
 
-    @Authorize(roles = "ADMIN")
     @GetMapping("/passengers")
     public ResponseEntity <Response> getAllUsers() {
         return ok(userService.getAll());

@@ -56,7 +56,7 @@ public class LocationControllerSecurityTest {
                 .contentType(ContentType.JSON)
                 .body(request)
                 .when()
-                .post(VERSION+"/administrator/location/create")
+                .post(VERSION+"/location/create")
                 .then().statusCode(201);
     }
     @Test
@@ -73,7 +73,7 @@ public class LocationControllerSecurityTest {
                 .contentType(ContentType.JSON)
                 .body(request)
                 .when()
-                .post(VERSION+"/administrator/location/create")
+                .post(VERSION+"/location/create")
                 .then().statusCode(403);
     }
     @Test
@@ -90,7 +90,7 @@ public class LocationControllerSecurityTest {
                 .contentType(ContentType.JSON)
                 .body(request)
                 .when()
-                .post(VERSION+"/administrator/location")
+                .get(VERSION+"/location")
                 .then().statusCode(403);
     }
 }

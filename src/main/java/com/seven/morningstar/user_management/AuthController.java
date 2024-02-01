@@ -2,15 +2,17 @@ package com.seven.morningstar.user_management;
 
 import com.seven.morningstar.responses.Response;
 import jakarta.validation.Valid;
-
-import static com.seven.morningstar.util.Responder.*;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import static com.seven.morningstar.util.AppConstants.VERSION;
+import static com.seven.morningstar.util.Responder.created;
+import static com.seven.morningstar.util.Responder.ok;
 
 @RestController
 @RequestMapping(VERSION)
@@ -25,7 +27,7 @@ public class AuthController {
     @PostMapping(value = "/register", produces = "application/json", consumes = "application/json")
     public ResponseEntity<Response> createResource(@Valid @RequestBody UserCreateRequest request) {
             UserDTO userDTO = userService.register(request);
-            return ok(userDTO.data, userDTO.token);
+            return created(userDTO.data, userDTO.token);
 
 //            EntityModel<ResponseEntity<Response>> entityModel = okHal(record);
 //

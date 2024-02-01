@@ -39,6 +39,11 @@ public class LocationId implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        return super.equals(obj);
+        try{
+            return
+                    this.stateCode == ((LocationId)obj).stateCode &&
+                            this.stationNo.equals(((LocationId)obj).stationNo);
+        }
+        catch (Exception e) {return false;}
     }
 }
