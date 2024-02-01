@@ -42,17 +42,17 @@ public class AdminController {
         return ok(Set.of(ticketService.get(bookingNo)));
     }
 
-    @GetMapping("/passengers")
+    @GetMapping("/users")
     public ResponseEntity <Response> getAllUsers() {
         return ok(userService.getAll());
     }
 
-    @GetMapping("/passengers/search")
+    @GetMapping("/users/search")
     public ResponseEntity <Response> getUser(@Valid @RequestParam(name = "email") String email) {
         return ok(Set.of(userService.get(email)));//Signifies admin access
     }
 
-    @PatchMapping("/passengers/update")
+    @PatchMapping("/users/update")
     public ResponseEntity <Response> updateUserRole(@Valid @RequestBody UserUpdateRequest request) {
         return ok(Set.of(userService.updateForAdmin(request)));
     }
