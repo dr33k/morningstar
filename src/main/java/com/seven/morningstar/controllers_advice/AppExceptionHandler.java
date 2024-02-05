@@ -28,7 +28,7 @@ public class AppExceptionHandler{
             case 403 -> {return forbidden(ex.getMessage());}
             case 409 -> {return conflict(ex.getMessage());}
             case 500 -> {return internalServerError(ex.getMessage());}
-            default ->  throw ex;
+            default ->  {return internalServerError(ex.getMessage());}
         }
     }
 }

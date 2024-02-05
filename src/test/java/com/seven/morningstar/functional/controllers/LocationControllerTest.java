@@ -1,4 +1,4 @@
-package com.seven.morningstar.unit.controllers;
+package com.seven.morningstar.functional.controllers;
 
 import com.seven.morningstar.enums.LocationStatus;
 import com.seven.morningstar.enums.StateCode;

@@ -1,4 +1,4 @@
-package com.seven.morningstar.unit.controllers;
+package com.seven.morningstar.functional.controllers;
 
 import com.seven.morningstar.user_management.AuthController;
 import com.seven.morningstar.user_management.UserCreateRequest;
