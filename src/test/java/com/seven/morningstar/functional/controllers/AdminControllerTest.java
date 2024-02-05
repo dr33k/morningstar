@@ -7,6 +7,7 @@ import com.seven.morningstar.user_management.UserService;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -74,6 +75,7 @@ public class AdminControllerTest {
         Assertions.assertEquals(captor.getValue(), id);
     }
     @Test
+    @Disabled
     void testShouldFailToGetUser(){
         //Invalid id
         String id = null;

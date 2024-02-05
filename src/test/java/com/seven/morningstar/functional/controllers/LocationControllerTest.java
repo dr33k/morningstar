@@ -32,7 +32,7 @@ public class LocationControllerTest {
     void testShouldGetAllLocations(){
         Mockito.when(locationService.getAll()).thenReturn(Collections.emptySet());
         RestAssuredMockMvc.given().contentType("application/json")
-                .when().get(VERSION+"/administrator/location").then().statusCode(200);
+                .when().get(VERSION+"/location").then().statusCode(200);
     }
 
     @Test
@@ -51,7 +51,7 @@ public class LocationControllerTest {
                 .param("stateCode", id.getStateCode())
                 .param("stationNo", id.getStationNo())
                 .body(request)
-                .when().put(VERSION+"/administrator/location/update")
+                .when().put(VERSION+"/location/update")
                 .then().statusCode(200);
 
         Assertions.assertEquals(captor1.getValue().getLocationId(), id);
@@ -71,7 +71,7 @@ public class LocationControllerTest {
         RestAssuredMockMvc.given()
                 .contentType("application/json")
                 .body(request)
-                .when().post(VERSION+"/administrator/location/create")
+                .when().post(VERSION+"/location/create")
                 .then().statusCode(201);
 
         Assertions.assertEquals(captor1.getValue().getStationName(), "My Station");
@@ -84,7 +84,7 @@ public class LocationControllerTest {
         RestAssuredMockMvc.given()
                 .contentType("application/json")
                 .body(request)
-                .when().post(VERSION+"/administrator/location/create")
+                .when().post(VERSION+"/location/create")
                 .then().statusCode(400);
     }
 
@@ -99,7 +99,7 @@ public class LocationControllerTest {
                 .param("stateCode", id.getStateCode())
                 .param("stationNo", id.getStationNo())
                 .contentType("application/json")
-                .when().get(VERSION+"/administrator/location/search")
+                .when().get(VERSION+"/location/search")
                 .then().statusCode(200);
 
         Assertions.assertEquals(captor1.getValue(), id);
@@ -116,7 +116,7 @@ public class LocationControllerTest {
                 .param("stateCode", id.getStateCode())
                 .param("stationNo", id.getStationNo())
                 .contentType("application/json")
-                .when().delete(VERSION+"/administrator/location/delete")
+                .when().delete(VERSION+"/location/delete")
                 .then().statusCode(204);
 
         Assertions.assertEquals(captor1.getValue(), id);
