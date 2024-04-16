@@ -1,12 +1,17 @@
-# **MorningStar**. 
+# MorningStar 
 
-A Voyage Reservation System with ticketing features. Voyages include Flights, Buses, Trains and so on. 
-A Spring Boot powered API to be integrated to an Angular 15 client. 
-* **Authentication**: JWT;
-* **Database**: Postgres.
-* 
+API for a ticketing service. Java, Spring Boot.
 
-**mvnw package** to create .jar.
-*
-**mvnw spring-boot:run** to run in place
+Authentication: JWT
 
+Database: Postgres.
+
+### Run
+
+    mvnw package
+
+to create jar
+
+then
+
+    docker-compose up --build
