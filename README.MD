@@ -1,6 +1,6 @@
-# MorningStar 
+# Morningstar 
 
-API microservice for a ticketing and reservation. Java, Spring Boot.
+API microservice for ticketing and reservation. Java, Spring Boot.
 
 Authentication: JWT
 
