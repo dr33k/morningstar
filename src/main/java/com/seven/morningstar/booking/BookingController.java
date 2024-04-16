@@ -3,7 +3,9 @@ package com.seven.morningstar.booking;
 import com.seven.morningstar.enums.BookingUpdateType;
 import com.seven.morningstar.responses.Response;
 import com.seven.morningstar.user_management.UserService;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +19,7 @@ import static com.seven.morningstar.util.Responder.*;
 
 @RestController
 @RequestMapping(value = VERSION+"/booking", produces = "application/json")
+@OpenAPIDefinition(tags = @Tag(name="booking-controller"))
 @SecurityRequirement(name="jwtAuth")
 public class BookingController {
     BookingService bookingService;

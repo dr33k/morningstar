@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository("bookingRepository")
+@Repository
 public interface BookingRepository extends JpaRepository<Booking, UUID> {
     List<Booking> findAllByPassengerId(Long id);
     List<Booking> findAllByPassengerEmail(String email);

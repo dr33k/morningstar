@@ -20,7 +20,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Service("ticketService")
+@Service
 @Transactional
 public class TicketService implements AppService <TicketRecord, AppRequest> {
     private TicketRepository ticketRepository;

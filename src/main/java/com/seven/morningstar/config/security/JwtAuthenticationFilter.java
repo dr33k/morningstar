@@ -49,7 +49,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, exception.getMessage());
                 }
             }
-            else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
         filterChain.doFilter(request, response);
     }

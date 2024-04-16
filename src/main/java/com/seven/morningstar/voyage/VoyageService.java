@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 import static com.seven.morningstar.enums.VoyageStatus.*;
 import static com.seven.morningstar.enums.LocationStatus.*;
 
-@Service("voyageService")
+@Service
 @Transactional
 @ApplicationScope
 public class VoyageService implements AppService <VoyageRecord, AppRequest> {

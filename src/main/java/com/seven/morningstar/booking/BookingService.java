@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import static com.seven.morningstar.enums.BookingStatus.*;
 
-@Service("bookingService")
+@Service
 @Transactional
 @ApplicationScope
 public class BookingService implements AppService <BookingRecord, AppRequest> {

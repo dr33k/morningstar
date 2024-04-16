@@ -9,8 +9,8 @@ import org.springframework.web.context.annotation.ApplicationScope;
 import java.util.List;
 import java.util.Optional;
 
-@Repository("locationRepository")
 @ApplicationScope
+@Repository
 public interface LocationRepository extends JpaRepository <Location, LocationId>{
     Integer countByLocationIdStateCode(StateCode stateCode);
     Integer deleteByLocationIdAndStatus(LocationId id, LocationStatus status);
