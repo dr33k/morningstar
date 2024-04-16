@@ -15,3 +15,5 @@ to create jar
 then
 
     docker-compose up --build
+
+Visit: http://127.0.0.1:8080
