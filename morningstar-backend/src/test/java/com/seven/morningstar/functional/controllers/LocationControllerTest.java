@@ -1,8 +1,8 @@
 package com.seven.morningstar.functional.controllers;
 
-import com.seven.morningstar.backend.location.enums.LocationStatus;
-import com.seven.morningstar.backend.location.enums.StateCode;
-import com.seven.morningstar.backend.location.*;
+import com.seven.morningstar.location.enums.LocationStatus;
+import com.seven.morningstar.location.enums.StateCode;
+import com.seven.morningstar.location.*;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 
-import static com.seven.morningstar.backend.util.AppConstants.VERSION;
+import static com.seven.morningstar.util.AppConstants.VERSION;
 
 @ExtendWith(MockitoExtension.class)
 public class LocationControllerTest {

@@ -1,14 +1,14 @@
 package com.seven.morningstar.security;
 
-import com.seven.morningstar.backend.config.security.BCryptEncoder;
-import com.seven.morningstar.backend.config.security.JwtAuthenticationFilter;
-import com.seven.morningstar.backend.config.security.JwtService;
-import com.seven.morningstar.backend.config.security.SecurityConfigurer;
-import com.seven.morningstar.backend.location.enums.StateCode;
-import com.seven.morningstar.backend.location.LocationController;
-import com.seven.morningstar.backend.location.LocationCreateRequest;
-import com.seven.morningstar.backend.location.LocationService;
-import com.seven.morningstar.backend.user_management.UserService;
+import com.seven.morningstar.config.security.BCryptEncoder;
+import com.seven.morningstar.config.security.JwtAuthenticationFilter;
+import com.seven.morningstar.config.security.JwtService;
+import com.seven.morningstar.config.security.SecurityConfigurer;
+import com.seven.morningstar.location.enums.StateCode;
+import com.seven.morningstar.location.LocationController;
+import com.seven.morningstar.location.LocationCreateRequest;
+import com.seven.morningstar.location.LocationService;
+import com.seven.morningstar.user_management.UserService;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.context.WebApplicationContext;
 
-import static com.seven.morningstar.backend.util.AppConstants.VERSION;
+import static com.seven.morningstar.util.AppConstants.VERSION;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.webAppContextSetup;
 

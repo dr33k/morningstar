@@ -1,9 +1,9 @@
 package com.seven.morningstar.functional.controllers;
 
-import com.seven.morningstar.backend.user_management.AuthController;
-import com.seven.morningstar.backend.user_management.UserCreateRequest;
-import com.seven.morningstar.backend.user_management.UserDTO;
-import com.seven.morningstar.backend.user_management.UserService;
+import com.seven.morningstar.user_management.AuthController;
+import com.seven.morningstar.user_management.UserCreateRequest;
+import com.seven.morningstar.user_management.UserDTO;
+import com.seven.morningstar.user_management.UserService;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 
-import static com.seven.morningstar.backend.util.AppConstants.VERSION;
+import static com.seven.morningstar.util.AppConstants.VERSION;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthControllerTest {
