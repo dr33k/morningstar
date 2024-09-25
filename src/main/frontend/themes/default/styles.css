@@ -1,0 +1,17 @@
+
+@font-face{
+font-family: "Abel-Regular"
+src: url("./Abel-Regular.ttf").format("ttf")
+}
+
+html, :host{
+--lumo-font-family: "Abel-Regular"
+}
+
+.banner-layout{
+background-color: blue
+}
+
+.btn-layout{
+background-color: yellow
+}

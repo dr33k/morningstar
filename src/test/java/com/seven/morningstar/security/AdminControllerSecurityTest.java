@@ -1,13 +1,13 @@
 package com.seven.morningstar.security;
 
-import com.seven.morningstar.booking.BookingService;
-import com.seven.morningstar.config.security.BCryptEncoder;
-import com.seven.morningstar.config.security.JwtAuthenticationFilter;
-import com.seven.morningstar.config.security.JwtService;
-import com.seven.morningstar.config.security.SecurityConfigurer;
-import com.seven.morningstar.ticket.TicketService;
-import com.seven.morningstar.user_management.AdminController;
-import com.seven.morningstar.user_management.UserService;
+import com.seven.morningstar.backend.booking.BookingService;
+import com.seven.morningstar.backend.config.security.BCryptEncoder;
+import com.seven.morningstar.backend.config.security.JwtAuthenticationFilter;
+import com.seven.morningstar.backend.config.security.JwtService;
+import com.seven.morningstar.backend.config.security.SecurityConfigurer;
+import com.seven.morningstar.backend.ticket.TicketService;
+import com.seven.morningstar.backend.user_management.AdminController;
+import com.seven.morningstar.backend.user_management.UserService;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.context.WebApplicationContext;
 
-import static com.seven.morningstar.util.AppConstants.VERSION;
+import static com.seven.morningstar.backend.util.AppConstants.VERSION;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(controllers = AdminController.class)

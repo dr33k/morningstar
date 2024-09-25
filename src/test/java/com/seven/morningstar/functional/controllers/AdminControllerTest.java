@@ -1,9 +1,9 @@
 package com.seven.morningstar.functional.controllers;
 
-import com.seven.morningstar.booking.BookingService;
-import com.seven.morningstar.ticket.TicketService;
-import com.seven.morningstar.user_management.AdminController;
-import com.seven.morningstar.user_management.UserService;
+import com.seven.morningstar.backend.booking.BookingService;
+import com.seven.morningstar.backend.ticket.TicketService;
+import com.seven.morningstar.backend.user_management.AdminController;
+import com.seven.morningstar.backend.user_management.UserService;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +17,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
-import static com.seven.morningstar.util.AppConstants.VERSION;
+import static com.seven.morningstar.backend.util.AppConstants.VERSION;
 
 @ExtendWith(MockitoExtension.class)
 public class AdminControllerTest {
