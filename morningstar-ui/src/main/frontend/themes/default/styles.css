@@ -1,0 +1,29 @@
+
+@font-face{
+font-family: "Abel-Regular",
+src: url("./Abel-Regular.ttf").format("ttf")
+}
+
+html, :host{
+--lumo-font-family: "Helvetica"
+}
+
+.banner1{
+font-size: 2.75em;
+}
+
+.banner2{
+font-size: 2em;
+}
+
+.banner3{
+font-size: 1em;
+}
+
+.btn-layout{
+background-color: blue;
+}
+
+.banner-layout{
+background-color: blue;
+}
