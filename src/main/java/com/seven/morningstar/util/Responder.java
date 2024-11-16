@@ -1,20 +1,12 @@
 package com.seven.morningstar.util;
 
 import com.seven.morningstar.responses.Response;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-
 public final class Responder {
     public static ResponseEntity <Response> ok(Object records) {
         return ResponseEntity.ok(Response.builder()
@@ -83,41 +75,41 @@ public final class Responder {
                 .timestamp(LocalDateTime.now())
                 .build());
     }
-    public static EntityModel<ResponseEntity<Response>> okHal(Object userData){
-        EntityModel<ResponseEntity<Response>> entityModel = EntityModel.of(
-                ResponseEntity.ok(
-                        Response.builder()
-                                .data(userData)
-                                .isError(false)
-                                .status(HttpStatus.OK)
-                                .timestamp(LocalDateTime.now())
-                                .build()
-                )
-        );
-        return entityModel;
-    }
-    public static EntityModel<ResponseEntity<Response>> createdHal(Object records, String location){
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path(location).buildAndExpand().toUri();
-
-        EntityModel<ResponseEntity<Response>> entityModel = EntityModel.of(
-                ResponseEntity.status(201).location(uri).body(
-                Response.builder()
-                        .data(records)
-                        .isError(false)
-                        .status(HttpStatus.CREATED)
-                        .timestamp(LocalDateTime.now())
-                        .build()
-                )
-        );
-        return entityModel;
-    }
-    public static void createAndIncludeLinks(Map <String,Object> refToInvocationObjectMap ,EntityModel<ResponseEntity<Response>> entityModel) {
-        //The key of an entryset in refToInvocationObjectMap is the "ref" property of the link
-        //The value of an entrySet in refToInvocationObjectMap is the invocation object of type Object
-
-        Set <Link> links = refToInvocationObjectMap.entrySet().stream().map(
-                entry -> linkTo(entry.getValue()).withRel(entry.getKey())
-        ).collect(Collectors.toSet());
-        entityModel.add(links);
-    }
+//    public static EntityModel<ResponseEntity<Response>> okHal(Object userData){
+//        EntityModel<ResponseEntity<Response>> entityModel = EntityModel.of(
+//                ResponseEntity.ok(
+//                        Response.builder()
+//                                .data(userData)
+//                                .isError(false)
+//                                .status(HttpStatus.OK)
+//                                .timestamp(LocalDateTime.now())
+//                                .build()
+//                )
+//        );
+//        return entityModel;
+//    }
+//    public static EntityModel<ResponseEntity<Response>> createdHal(Object records, String location){
+//        URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path(location).buildAndExpand().toUri();
+//
+//        EntityModel<ResponseEntity<Response>> entityModel = EntityModel.of(
+//                ResponseEntity.status(201).location(uri).body(
+//                Response.builder()
+//                        .data(records)
+//                        .isError(false)
+//                        .status(HttpStatus.CREATED)
+//                        .timestamp(LocalDateTime.now())
+//                        .build()
+//                )
+//        );
+//        return entityModel;
+//    }
+//    public static void createAndIncludeLinks(Map <String,Object> refToInvocationObjectMap ,EntityModel<ResponseEntity<Response>> entityModel) {
+//        //The key of an entryset in refToInvocationObjectMap is the "ref" property of the link
+//        //The value of an entrySet in refToInvocationObjectMap is the invocation object of type Object
+//
+//        Set <Link> links = refToInvocationObjectMap.entrySet().stream().map(
+//                entry -> linkTo(entry.getValue()).withRel(entry.getKey())
+//        ).collect(Collectors.toSet());
+//        entityModel.add(links);
+//    }
 }
