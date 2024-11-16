@@ -1,6 +1,6 @@
-# MorningStar 
+# Morningstar 
 
-API microservice for a ticketing and reservation. Java, Spring Boot.
+API microservice for ticketing and reservation. Java, Spring Boot.
 
 Authentication: JWT
 
@@ -15,5 +15,7 @@ to create jar
 then
 
     docker-compose up --build
+
+Because I did not wish to hardcode the envs this time.
 
 Visit: http://localhost:8080/swagger-ui.html
