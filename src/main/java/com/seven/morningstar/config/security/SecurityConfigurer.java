@@ -34,7 +34,6 @@ public class SecurityConfigurer{
 
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-
                 .authorizeHttpRequests()
                 .requestMatchers(HttpMethod.POST, "/v1/register/**", "/v1/login/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/swagger-ui.html/**","/swagger-ui/**","/v3/api-docs/**").permitAll()

@@ -1,7 +1,9 @@
 package com.seven.morningstar.voyage;
 
 import com.seven.morningstar.responses.Response;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +15,9 @@ import static com.seven.morningstar.util.Responder.created;
 import static com.seven.morningstar.util.Responder.ok;
 
 @RestController
-@RequestMapping("/administrator/voyage")
+@RequestMapping(value = "/administrator/voyage", produces = MediaType.APPLICATION_JSON_VALUE)
+@SecurityRequirement(name = "jwtAuth")
+
 public class VoyageController {
     VoyageService voyageService;
     public VoyageController(VoyageService voyageService) {

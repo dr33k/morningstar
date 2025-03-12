@@ -2,6 +2,7 @@ package com.seven.morningstar.user_management;
 
 import com.seven.morningstar.config.security.Authorize;
 import com.seven.morningstar.responses.Response;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,8 @@ import static com.seven.morningstar.util.Responder.noContent;
 
 @RestController
 @RequestMapping(VERSION+"/user")
+@SecurityRequirement(name = "jwtAuth")
+
 public class UserController {
     UserService userService;
     public UserController(UserService userService) {

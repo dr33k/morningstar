@@ -2,7 +2,9 @@ package com.seven.morningstar.ticket;
 
 import com.seven.morningstar.responses.Response;
 import com.seven.morningstar.booking.BookingService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +19,9 @@ import static com.seven.morningstar.util.AppConstants.VERSION;
 import static com.seven.morningstar.util.Responder.ok;
 
 @RestController
-@RequestMapping(VERSION+"/ticket")
+@RequestMapping(value = VERSION+"/ticket", produces = MediaType.APPLICATION_JSON_VALUE)
+@SecurityRequirement(name = "jwtAuth")
+
 public class TicketController {
     TicketService ticketService;
     BookingService bookingService;
