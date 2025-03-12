@@ -16,6 +16,6 @@ then
 
     docker-compose up --build
 
-Because I did not wish to hardcode the envs this time.
+Requires an env file to startup
 
 Visit: http://localhost:8080/swagger-ui.html
